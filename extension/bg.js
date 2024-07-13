@@ -1,152 +1,248 @@
 /*** data ***/
 
-const HOST_NAME = 'io.github.tcode2k16.rofi.chrome';
+const HOST_NAME = "io.github.tcode2k16.rofi.chrome";
 
 let state = {
-  port: null,
-  lastTabId: [0, 0],
+    port: null,
+    lastTabId: [0, 0],
 };
 
 /*** utils ***/
 
 function goToTab(id) {
-  chrome.tabs.get(id, function (tabInfo) {
-    chrome.windows.update(tabInfo.windowId, { focused: true }, function () {
-      chrome.tabs.update(id, { active: true, highlighted: true });
+    chrome.tabs.get(id, function (tabInfo) {
+        chrome.windows.update(tabInfo.windowId, { focused: true }, function () {
+            chrome.tabs.update(id, { active: true, highlighted: true });
+        });
     });
-  });
 }
 
-function openUrlInNewTab(url) {
-  chrome.tabs.create({ url });
+function openUrlInNewTab(input) {
+    const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
+
+    if (urlRegex.test(input)) {
+        chrome.tabs.create({ url: input });
+    } else {
+        const domainPattern = /^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+        if (domainPattern.test(input)) {
+            chrome.tabs.create({ url: `https://${input}` });
+        } else {
+            let searchUrl = `https://www.google.com/search?q=${encodeURIComponent(input)}`;
+            chrome.tabs.create({ url: searchUrl });
+        }
+    }
 }
 
+/// TODO: Filter results
 function refreshHistory(callback) {
-  chrome.history.search({
-    text: '',
-    startTime: 0,
-    maxResults: 2147483647,
-  }, function (results) {
-    callback(results);
-  });
+    const oneWeekAgo = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
+    chrome.history.search(
+        {
+            text: "",
+            startTime: oneWeekAgo,
+            maxResults: 5000,
+        },
+        function (results) {
+            callback(results);
+        },
+    );
 }
 
 /*** commands ***/
 
 const CMDS = {
-  switchTab() {
-    chrome.tabs.query({}, function (tabs) {
-      state.port.postMessage({
-        'cmd': 'dmenu',
-        'info': 'switchTab',
-        'param': {
-          'rofi-opts': ['-i', '-p', 'tab'],
-          'opts': tabs.map(e => (e.id) + ': ' + e.title + ' ::: ' + e.url),
-        }
-      });
-    });
-  },
+    switchTab() {
+        chrome.tabs.query({}, function (tabs) {
+            // Ensure state.port is initialized
+            if (!state.port) {
+                console.error("Error: state.port is not initialized.");
+                return;
+            }
 
-  openHistory() {
-    refreshHistory(function (results) {
-      state.port.postMessage({
-        'cmd': 'dmenu',
-        'info': 'openHistory',
-        'param': {
-          'rofi-opts': ['-matching', 'normal', '-i', '-p', 'history'],
-          'opts': results.map(e => e.title + ' ::: ' + e.url),
-        }
-      });
-    });
-  },
-  
-  goLastTab() {
-    goToTab(state.lastTabId[1]);
-  },
+            // Check for any errors in the tabs query
+            if (chrome.runtime.lastError) {
+                console.error("Error querying tabs:", chrome.runtime.lastError);
+                return;
+            }
 
-  pageFunc() {
-    chrome.tabs.query({ active: true, currentWindow: true }, async function (tabInfo) {
-      if (tabInfo.length < 1) return;
-      const pageOrigin = (new URL(tabInfo[0].url)).origin;
+            // Fetch browsing history
+            refreshHistory(function (historyResults) {
+                // Check for any errors in the history query
+                if (chrome.runtime.lastError) {
+                    console.error(
+                        "Error querying history:",
+                        chrome.runtime.lastError,
+                    );
+                    return;
+                }
 
-      refreshHistory(function (results) {
-        state.port.postMessage({
-          'cmd': 'dmenu',
-          'info': 'changeToPage',
-          'param': {
-            'rofi-opts': ['-matching', 'normal', '-i', '-p', 'page'],
-            'opts': results.filter(e => e.url.indexOf(pageOrigin) === 0).map(e => e.title + ' ::: ' + e.url),
-          }
+                // Combine tabs and history results
+                const combinedOpts = [
+                    ...tabs.map((e) => `${e.title} ::: ${e.url}`),
+                    ...historyResults.map((e) => `${e.title} ::: ${e.url}`),
+                ];
+
+                const tabIds = tabs.map((e) => e.id);
+
+                // Debugging statements
+                console.log("Combined options:", combinedOpts);
+                console.log("Tab IDs:", tabIds);
+
+                // Send combined options to rofi
+                try {
+                    state.port.postMessage({
+                        cmd: "dmenu",
+                        info: "switchTab",
+                        param: {
+                            "rofi-opts": [
+                                "-matching",
+                                "normal",
+                                "-i",
+                                "-p",
+                                "Search",
+                            ],
+                            opts: combinedOpts,
+                            tabIds: tabIds,
+                        },
+                    });
+                } catch (error) {
+                    console.error(
+                        "Error sending message via state.port:",
+                        error,
+                    );
+                }
+            });
         });
-      });
-    });
-  },
+    },
+
+    openHistory() {
+        refreshHistory(function (results) {
+            state.port.postMessage({
+                cmd: "dmenu",
+                info: "openHistory",
+                param: {
+                    "rofi-opts": ["-matching", "normal", "-i", "-p", "history"],
+                    opts: results.map((e) => e.title + " ::: " + e.url),
+                },
+            });
+        });
+    },
+
+    goLastTab() {
+        goToTab(state.lastTabId[1]);
+    },
+
+    pageFunc() {
+        chrome.tabs.query(
+            { active: true, currentWindow: true },
+            async function (tabInfo) {
+                if (tabInfo.length < 1) return;
+                const pageOrigin = new URL(tabInfo[0].url).origin;
+
+                refreshHistory(function (results) {
+                    state.port.postMessage({
+                        cmd: "dmenu",
+                        info: "changeToPage",
+                        param: {
+                            "rofi-opts": [
+                                "-matching",
+                                "normal",
+                                "-i",
+                                "-p",
+                                "page",
+                            ],
+                            opts: results
+                                .filter((e) => e.url.indexOf(pageOrigin) === 0)
+                                .map((e) => e.title + " ::: " + e.url),
+                        },
+                    });
+                });
+            },
+        );
+    },
 };
 
 /*** listeners ***/
 
 function onNativeMessage(message) {
-  if (message.info === 'switchTab' && message.result !== '') {
-    goToTab(parseInt(message.result.split(': ')[0]));
-  } else if (message.info === 'openHistory' && message.result !== '') {
-    let parts = message.result.split(' ::: ');
+    if (message.info === "switchTab" && message.result !== "") {
+        if (typeof message.result === "string") {
+            if (message.result.startsWith("g ")) {
+                let url = message.result.substring(2);
+                openUrlInNewTab(url);
+            } else {
+                chrome.tabs.create({ url: message.result });
+            }
+        } else {
+            goToTab(parseInt(message.result));
+        }
+    } else if (message.info === "openHistory" && message.result !== "") {
+        let parts = message.result.split(" ::: ");
 
-    openUrlInNewTab(parts[parts.length - 1]);
-  } else if (message.info === 'changeToPage' && message.result !== '') {
-    let parts = message.result.split(' ::: ');
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabInfo) {
-      chrome.tabs.update(tabInfo[0].id, {
-        url: parts[parts.length - 1],
-      });
-    });
-  } else if (message.result === '') {
-    // do nothing
-  } else {
-    alert(JSON.stringify(message));
-  }
+        openUrlInNewTab(parts[parts.length - 1]);
+    } else if (message.info === "changeToPage" && message.result !== "") {
+        let parts = message.result.split(" ::: ");
+        chrome.tabs.query(
+            { active: true, currentWindow: true },
+            function (tabInfo) {
+                chrome.tabs.update(tabInfo[0].id, {
+                    url: parts[parts.length - 1],
+                });
+            },
+        );
+    } else if (message.result === "") {
+        // do nothing
+    } else {
+        console.log(JSON.stringify(message));
+    }
 
-  // console.log("Received message: " + JSON.stringify(message));
+    // console.log
 }
 
 function onDisconnected() {
-  alert("Failed to connect: " + chrome.runtime.lastError.message);
-  state.port = null;
+    console.log("Failed to connect: " + chrome.runtime.lastError.message);
+    state.port = null;
 }
 
 function addChromeListeners() {
-  const listeners = {
-    commands: {
-      onCommand: function (command) {
-        if (command in CMDS) {
-          CMDS[command]();
-        } else {
-          alert('unknown command: ' + command)
-        }
-      }
-    },
-    tabs: {
-      onActivated: function (activeInfo) {
-        state.lastTabId[1] = state.lastTabId[0];
-        state.lastTabId[0] = activeInfo.tabId;
-      }
-    }
-  };
+    const listeners = {
+        runtime: {
+            onMessage: function (message, sender, sendsendResponse) {
+                if (message.command in CMDS) {
+                    CMDS[message.command]();
+                } else {
+                    console.log("unknown command: " + message.command);
+                }
+            },
+        },
+        commands: {
+            onCommand: function (command) {
+                if (command in CMDS) {
+                    CMDS[command]();
+                } else {
+                    console.log("unknown command: " + command);
+                }
+            },
+        },
+        tabs: {
+            onActivated: function (activeInfo) {
+                state.lastTabId[1] = state.lastTabId[0];
+                state.lastTabId[0] = activeInfo.tabId;
+            },
+        },
+    };
 
-  for (let api in listeners) {
-    for (let method in listeners[api]) {
-      chrome[api][method].addListener(listeners[api][method]);
+    for (let api in listeners) {
+        for (let method in listeners[api]) {
+            chrome[api][method].addListener(listeners[api][method]);
+        }
     }
-  }
 }
 
 /*** main ***/
 
-function main() {
-  state.port = chrome.runtime.connectNative(HOST_NAME);
-  state.port.onMessage.addListener(onNativeMessage);
-  state.port.onDisconnect.addListener(onDisconnected);
+state.port = chrome.runtime.connectNative(HOST_NAME);
+state.port.onMessage.addListener(onNativeMessage);
+state.port.onDisconnect.addListener(onDisconnected);
 
-  addChromeListeners();
-};
-
-main();
+addChromeListeners();

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 OS="$(uname -s)"
@@ -19,34 +20,41 @@ cyan='\033[36m'
 main() {
 
   print_horizontal_line
-  
+
   # OS
   case "$OS" in
-  Linux)
-    if command -v "google-chrome" >/dev/null 2>&1; then
-      on_key 'Uninstall for google-chrome? (y/n)'
-      if test "$key" = 'y'; then
-        browser_uninstall "$HOME/.config/google-chrome/NativeMessagingHosts" "google-chrome"
+    Linux)
+      if command -v "vivaldi" >/dev/null 2>&1; then
+        on_key 'Uninstall for vivaldi? (y/n)'
+        if test "$key" = 'y'; then
+          browser_uninstall "$HOME/.config/vivaldi/NativeMessagingHosts" "vivaldi"
+        fi
       fi
-    fi
 
-    if command -v "chromium-browser" >/dev/null 2>&1; then
-      on_key 'Uninstall for chromium-browser? (y/n)'
-      if test "$key" = 'y'; then
-        browser_uninstall "$HOME/.config/chromium/NativeMessagingHosts" "chromium-browser"
+      if command -v "google-chrome" >/dev/null 2>&1; then
+        on_key 'Uninstall for google-chrome? (y/n)'
+        if test "$key" = 'y'; then
+          browser_uninstall "$HOME/.config/google-chrome/NativeMessagingHosts" "google-chrome"
+        fi
       fi
-    fi
 
-    if command -v "firefox" >/dev/null 2>&1; then
-      on_key 'Uninstall for firefox? (y/n)'
-      if test "$key" = 'y'; then
-        browser_uninstall "$HOME/.mozilla/native-messaging-hosts" "firefox"
+      if command -v "chromium-browser" >/dev/null 2>&1; then
+        on_key 'Uninstall for chromium-browser? (y/n)'
+        if test "$key" = 'y'; then
+          browser_uninstall "$HOME/.config/chromium/NativeMessagingHosts" "chromium-browser"
+        fi
       fi
-    fi
-    ;;
-  *)
-    printf "${red}Error${none} %s is not currently supported" "$OS"
-    ;;
+
+      if command -v "firefox" >/dev/null 2>&1; then
+        on_key 'Uninstall for firefox? (y/n)'
+        if test "$key" = 'y'; then
+          browser_uninstall "$HOME/.mozilla/native-messaging-hosts" "firefox"
+        fi
+      fi
+      ;;
+    *)
+      printf "${red}Error${none} %s is not currently supported" "$OS"
+      ;;
   esac
 
 }

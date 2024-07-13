@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 OS="$(uname -s)"
@@ -24,40 +25,47 @@ main() {
   print_horizontal_line
 
   # Dependencies
-  printf "${green}Checking Dependencies${none}: python2 rofi\n"
+  printf "${green}Checking Dependencies${none}: python rofi\n"
 
-  check_dependency python2 Python2 https://www.python.org
+  check_dependency python Python https://www.python.org
   check_dependency rofi rofi https://github.com/davatorium/rofi
-  
+
   print_horizontal_line
-  
+
   # OS
   case "$OS" in
-  Linux)
-    if command -v "google-chrome" >/dev/null 2>&1; then
-      on_key 'Install for google-chrome? (y/n)'
-      if test "$key" = 'y'; then
-        browser_install "$HOME/.config/google-chrome/NativeMessagingHosts" "google-chrome"
+    Linux)
+      if command -v "vivaldi" >/dev/null 2>&1; then
+        on_key 'Install for vivaldi? (y/n)'
+        if test "$key" = 'y'; then
+          browser_install "$HOME/.config/vivaldi/NativeMessagingHosts" "vivaldi"
+        fi
       fi
-    fi
 
-    if command -v "chromium-browser" >/dev/null 2>&1; then
-      on_key 'Install for chromium-browser? (y/n)'
-      if test "$key" = 'y'; then
-        browser_install "$HOME/.config/chromium/NativeMessagingHosts" "chromium-browser"
+      if command -v "google-chrome" >/dev/null 2>&1; then
+        on_key 'Install for google-chrome? (y/n)'
+        if test "$key" = 'y'; then
+          browser_install "$HOME/.config/google-chrome/NativeMessagingHosts" "google-chrome"
+        fi
       fi
-    fi
 
-    if command -v "firefox" >/dev/null 2>&1; then
-      on_key 'Install for firefox? (y/n)'
-      if test "$key" = 'y'; then
-        browser_install "$HOME/.mozilla/native-messaging-hosts" "firefox"
+      if command -v "chromium-browser" >/dev/null 2>&1; then
+        on_key 'Install for chromium-browser? (y/n)'
+        if test "$key" = 'y'; then
+          browser_install "$HOME/.config/chromium/NativeMessagingHosts" "chromium-browser"
+        fi
       fi
-    fi
-    ;;
-  *)
-    printf "${red}Error${none} %s is not currently supported" "$OS"
-    ;;
+
+      if command -v "firefox" >/dev/null 2>&1; then
+        on_key 'Install for firefox? (y/n)'
+        if test "$key" = 'y'; then
+          browser_install "$HOME/.mozilla/native-messaging-hosts" "firefox"
+        fi
+      fi
+      ;;
+    *)
+      printf "${red}Error${none} %s is not currently supported" "$OS"
+      ;;
   esac
 
 }
@@ -73,7 +81,6 @@ browser_install() {
   HOST_PATH="$SOURCE_DIR/main.py"
   ESCAPED_HOST_PATH=${HOST_PATH////\\/}
   sed -i -e "s/HOST_PATH/$ESCAPED_HOST_PATH/" "$TARGET_DIR/$NAME.json"
-
 
   chmod o+r "$TARGET_DIR/$NAME.json"
   printf "❯ ${green}Successfully installed for %s ${none}\n" "$browser_name"
