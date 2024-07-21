@@ -28,6 +28,9 @@
     "switchTab": {
       "description": "switch to another tab"
     },
+    "listDownloads": {
+      "description": "list completed downloads"
+    },
     "openHistory": {
       "description": "open tab from history"
     },

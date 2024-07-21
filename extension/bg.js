@@ -84,14 +84,9 @@ const CMDS = {
 
                 const tabIds = tabs.map((e) => e.id);
 
-                // Debugging statements
-                console.log("Combined options:", combinedOpts);
-                console.log("Tab IDs:", tabIds);
-
                 // Send combined options to rofi
                 try {
                     state.port.postMessage({
-                        cmd: "dmenu",
                         info: "switchTab",
                         param: {
                             "rofi-opts": [
@@ -115,10 +110,55 @@ const CMDS = {
         });
     },
 
+    listDownloads() {
+        chrome.downloads.search({}, function (results) {
+            // Ensure state.port is initialized
+            if (!state.port) {
+                console.error("Error: state.port is not initialized.");
+                return;
+            }
+
+            // Check for any errors in the tabs query
+            if (chrome.runtime.lastError) {
+                console.error("Error querying tabs:", chrome.runtime.lastError);
+                return;
+            }
+
+            const existingDownloads = results.filter(
+                (downloadItem) => downloadItem.exists,
+            );
+
+            existingDownloads.sort(
+                (a, b) => new Date(b.startTime) - new Date(a.startTime),
+            );
+
+            try {
+                state.port.postMessage({
+                    info: "listDownloads",
+                    param: {
+                        "rofi-opts": [
+                            "-matching",
+                            "normal",
+                            "-i",
+                            "-p",
+                            "Search",
+                            "-kb-accept-custom",
+                            "Shift-Return",
+                            "-kb-custom-1",
+                            "Control-Return",
+                        ],
+                        opts: existingDownloads.map((e) => e.filename),
+                    },
+                });
+            } catch (error) {
+                console.error("Error sending message via state.port:", error);
+            }
+        });
+    },
+
     openHistory() {
         refreshHistory(function (results) {
             state.port.postMessage({
-                cmd: "dmenu",
                 info: "openHistory",
                 param: {
                     "rofi-opts": ["-matching", "normal", "-i", "-p", "history"],
@@ -141,7 +181,6 @@ const CMDS = {
 
                 refreshHistory(function (results) {
                     state.port.postMessage({
-                        cmd: "dmenu",
                         info: "changeToPage",
                         param: {
                             "rofi-opts": [
@@ -228,6 +267,46 @@ function addChromeListeners() {
             onActivated: function (activeInfo) {
                 state.lastTabId[1] = state.lastTabId[0];
                 state.lastTabId[0] = activeInfo.tabId;
+            },
+        },
+
+        downloads: {
+            onChanged: function (downloadDelta) {
+                if (
+                    downloadDelta.state &&
+                    downloadDelta.state.current === "complete"
+                ) {
+                    chrome.downloads.search(
+                        { id: downloadDelta.id },
+                        function (results) {
+                            if (results.length > 0) {
+                                const downloadItem = results[0];
+                                if (downloadItem.exists) {
+                                    // Ensure state.port is initialized
+                                    if (!state.port) {
+                                        console.error("Error: state.port is not initialized.");
+                                        return;
+                                    }
+
+                                    // Check for any errors in the tabs query
+                                    if (chrome.runtime.lastError) {
+                                        console.error("Error querying tabs:", chrome.runtime.lastError);
+                                        return;
+                                    }
+
+                                    try {
+                                        state.port.postMessage({
+                                            info: "copyDownload",
+                                            param: downloadItem.filename,
+                                        });
+                                    } catch (error) {
+                                        console.error("Error sending message via state.port:", error);
+                                    }
+                                }
+                            }
+                        },
+                    );
+                }
             },
         },
     };

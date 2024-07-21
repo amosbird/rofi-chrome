@@ -25,7 +25,7 @@ def log(msg):
         f.write(f"{msg}\n")
 
 
-def call_rofi(param):
+def switch_tab(param):
     try:
         options = param["opts"]
         rofi_opts = ["rofi", "-dmenu"]
@@ -51,7 +51,38 @@ def call_rofi(param):
         except ValueError:
             return "g " + result
     except Exception as e:
-        log(f"Exception in call_rofi: {e}")
+        log(f"Exception in switch_tab: {e}")
+        return ""
+
+
+def list_downloads(param):
+    try:
+        options = param["opts"]
+        rofi_opts = ["rofi", "-dmenu"]
+        if "rofi-opts" in param:
+            rofi_opts.extend(param["rofi-opts"])
+
+        sh = subprocess.Popen(rofi_opts, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+        input_data = "\n".join(options)
+        stdout_data, _ = sh.communicate(input=input_data.encode("utf-8"))
+        ret = sh.wait()
+
+        if ret == 0:
+            subprocess.Popen(["fcp", stdout_data])
+        elif ret == 10:
+            subprocess.Popen(["xdg-open", stdout_data.decode("utf-8").strip()])
+        return ""
+    except Exception as e:
+        log(f"Exception in list_downloads: {e}")
+        return ""
+
+
+def copy_download(param):
+    try:
+        subprocess.Popen(["fcp", param])
+        return ""
+    except Exception as e:
+        log(f"Exception in copy_download: {e}")
         return ""
 
 
@@ -66,13 +97,16 @@ def main():
         data = sys.stdin.buffer.read(data_length).decode("utf-8")
         data = json.loads(data)
 
-        cmd = data["cmd"]
         param = data["param"]
         info = data["info"]
-        if cmd == "dmenu":
-            output = {"cmd": "dmenu", "result": call_rofi(param), "info": info}
+        if info == "switchTab":
+            output = {"result": switch_tab(param), "info": info}
+        elif info == "listDownloads":
+            output = {"result": list_downloads(param), "info": info}
+        elif info == "copyDownload":
+            output = {"result": copy_download(param), "info": info}
         else:
-            output = {"result": f"unknown command: {cmd}"}
+            output = {"result": f"unknown command: {info}"}
 
         send_message(json.dumps(output))
 
