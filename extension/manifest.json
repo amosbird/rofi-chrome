@@ -43,8 +43,13 @@
   },
   "content_scripts": [
     {
-      "matches": ["file:///home/amos/git/rofi-chrome/extension/run.html"],
-      "js": ["content.js"],
+      "matches": ["file:///home/amos/git/rofi-chrome/extension/tab.html"],
+      "js": ["tab.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["file:///home/amos/git/rofi-chrome/extension/download.html"],
+      "js": ["download.js"],
       "run_at": "document_start"
     }
   ]
