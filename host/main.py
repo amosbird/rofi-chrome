@@ -4,6 +4,7 @@ import struct
 import sys
 import json
 import subprocess
+import re
 from libqtile.command.client import CommandClient
 
 cmd_client = CommandClient()
@@ -32,6 +33,18 @@ def switch_tab(param):
         if "rofi-opts" in param:
             rofi_opts.extend(param["rofi-opts"])
 
+        patterns_output = (
+            subprocess.check_output(["rofi-browser-blocklist.sh"])
+            .decode("utf-8")
+            .strip()
+        )
+        patterns = patterns_output.splitlines()
+        compiled_patterns = [re.compile(pattern) for pattern in patterns]
+
+        def is_not_matched(opt):
+            return all(not cp.search(opt) for cp in compiled_patterns)
+
+        options = [opt for opt in param["opts"] if is_not_matched(opt)]
         sh = subprocess.Popen(rofi_opts, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
         input_data = "\n".join(options)
         stdout_data, _ = sh.communicate(input=input_data.encode("utf-8"))
