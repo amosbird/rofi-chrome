@@ -7,9 +7,10 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 PREFIX="$HOME/.local/share/rofi-chrome"
 CHROMIUM_CONFIG_DIR="$HOME/.config/chromium"
+EXTENSION_ID=aocepclkpgckjeikiphffdlileoaceec
 
 usage() {
-    printf 'usage: %s [--prefix DIR] [--chromium-config-dir DIR]\n' "$0"
+    printf 'usage: %s [--prefix DIR] [--chromium-config-dir DIR] [--extension-id ID]\n' "$0"
 }
 
 while (($#)); do
@@ -20,6 +21,10 @@ while (($#)); do
         ;;
     --chromium-config-dir)
         CHROMIUM_CONFIG_DIR=$2
+        shift 2
+        ;;
+    --extension-id)
+        EXTENSION_ID=$2
         shift 2
         ;;
     -h|--help)
@@ -47,7 +52,8 @@ chmod +x "$PREFIX/host/main.py"
 
 manifest_dir="$CHROMIUM_CONFIG_DIR/NativeMessagingHosts"
 mkdir -p "$manifest_dir"
-sed "s|HOST_PATH|$PREFIX/host/main.py|" \
+sed -e "s|HOST_PATH|$PREFIX/host/main.py|" \
+    -e "s|EXTENSION_ID|$EXTENSION_ID|" \
     "$ROOT/host/$NAME.chromium-browser.json" > "$manifest_dir/$NAME.json"
 
 printf 'Native host: %s\nExtension: %s\n' "$manifest_dir/$NAME.json" "$PREFIX/extension"

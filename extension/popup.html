@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rofi Browser Controller</title>
+    <link rel="stylesheet" href="popup.css">
+    <script src="popup.js" defer></script>
+</head>
+<body>
+    <header>
+        <img src="icons/icon48.png" alt="">
+        <div>
+            <h1>Rofi Browser Controller</h1>
+            <p id="native-status">Checking local host…</p>
+        </div>
+    </header>
+    <main>
+        <button data-command="switchTab"><b>Switch tab</b><span>Open tabs and recent history</span></button>
+        <button data-command="openHistory"><b>Browse history</b><span>Search recently visited pages</span></button>
+        <button data-command="pageFunc"><b>Search this site</b><span>History from the current site</span></button>
+        <button data-command="listDownloads"><b>Downloads</b><span>Copy or open downloaded files</span></button>
+        <button data-command="goLastTab"><b>Previous tab</b><span>Return to the last active tab</span></button>
+    </main>
+    <footer>Requires the local native host and Rofi.</footer>
+</body>
+</html>

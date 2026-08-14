@@ -1,8 +1,8 @@
 {
-    "name": "rofi-chrome",
+    "name": "Rofi Browser Controller",
     "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuHwUuBKUt9Ac7Sge8cHpFEkiX3wn/yTiVY9lPzRuK6D/9BwqMSydTXsaHTHjl/3FV7m1fmL338itD2ilR3e5m/8XnYowL6QoBVJAeHIWylmEE3/XKVjn1ETd0QnXj/3euG2Z+oWsVcWhhxfflOPErm+tO+LrFINwkRWire8Wdz4sCugYlPUL95dCRlRYwAcyc4i+9y1AB7meCDHDYeMc1arm9Aad0ePqGCulJlFH2ocq5LRkrXacmrGVohAhslKo3TBtvXaWZRlHDce6VhWL2C/G81EHNDOLlNnhPTQPjf1p5pBVxl10RVAJWvOCxKY74mLIM5ZG5Qb4b0C9lpVzyQIDAQAB",
-    "version": "1.1.1",
-    "description": "Control Chromium tabs, history, and downloads with rofi",
+    "version": "1.2.0",
+    "description": "Control Chromium tabs, browsing history, and downloads through a local Rofi menu.",
     "manifest_version": 3,
     "permissions": [
         "nativeMessaging",
@@ -10,24 +10,38 @@
         "history",
         "downloads"
     ],
+    "icons": {
+        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "action": {
+        "default_title": "Rofi Browser Controller",
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "32": "icons/icon32.png"
+        }
+    },
     "background": {
         "service_worker": "bg.js"
     },
     "commands": {
         "switchTab": {
-            "description": "switch to another tab"
+            "description": "Switch to another tab"
         },
         "listDownloads": {
-            "description": "list completed downloads"
+            "description": "List completed downloads"
         },
         "openHistory": {
-            "description": "open tab from history"
+            "description": "Open a page from browsing history"
         },
         "pageFunc": {
-            "description": "page-dependent search"
+            "description": "Search history from the current site"
         },
         "goLastTab": {
-            "description": "go to last tab"
+            "description": "Return to the previously active tab"
         }
     }
 }

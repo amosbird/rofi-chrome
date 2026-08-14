@@ -242,8 +242,10 @@ function onDisconnected() {
 function addChromeListeners() {
     const listeners = {
         runtime: {
-            onMessage: function (message, sender, sendsendResponse) {
-                if (message.command in CMDS) {
+            onMessage: function (message, sender, sendResponse) {
+                if (message.command === "nativeStatus") {
+                    sendResponse({ connected: Boolean(state.port) });
+                } else if (message.command in CMDS) {
                     CMDS[message.command]();
                 } else {
                     console.log("unknown command: " + message.command);

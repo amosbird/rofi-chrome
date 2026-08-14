@@ -3,7 +3,8 @@
 A Chromium extension and native messaging host for controlling tabs, history, and downloads with
 [Rofi](https://github.com/davatorium/rofi).
 
-Extension ID: `aocepclkpgckjeikiphffdlileoaceec`.
+Extension ID for the development build: `aocepclkpgckjeikiphffdlileoaceec`.
+The Chrome Web Store assigns its item ID on the first upload; pass that ID to the host installer.
 
 ## Features
 
@@ -18,7 +19,7 @@ Extension ID: `aocepclkpgckjeikiphffdlileoaceec`.
 Requirements: Chromium, Python 3, and Rofi.
 
 ```bash
-version=1.1.1
+version=1.2.0
 base=https://github.com/amosbird/rofi-chrome/releases/download/v$version
 curl -fLO "$base/rofi-chrome-extension-$version.zip"
 curl -fLO "$base/rofi-chrome-host-$version.tar.gz"
@@ -28,6 +29,12 @@ tar -xzf "rofi-chrome-host-$version.tar.gz" -C ~/.local/share/rofi-chrome
 ~/.local/share/rofi-chrome/scripts/install.sh \
     --prefix ~/.local/share/rofi-chrome \
     --chromium-config-dir ~/.config/chromium
+```
+
+For a Chrome Web Store installation, also pass the Item ID shown in the Developer Dashboard:
+
+```bash
+~/.local/share/rofi-chrome/scripts/install.sh --extension-id YOUR_STORE_ITEM_ID
 ```
 
 Load `~/.local/share/rofi-chrome/extension` as an unpacked extension, or launch Chromium with:
@@ -54,6 +61,20 @@ chromium --load-extension="$PWD/extension"
 ./scripts/build-release.sh
 sha256sum -c dist/SHA256SUMS
 ```
+
+## Chrome Web Store submission
+
+Build the upload package and checksums:
+
+```bash
+./scripts/build-release.sh
+unzip -l dist/rofi-chrome-cws-1.2.0.zip
+```
+
+Upload `dist/rofi-chrome-cws-1.2.0.zip`. It deliberately omits the development `key`; after the
+first upload, use the Item ID from the dashboard when installing the native host. Submission copy is
+in `store-listing.md`, the privacy policy is in `PRIVACY.md`, and listing images are in
+`store-assets/`.
 
 ## Security
 

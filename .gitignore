@@ -4,4 +4,5 @@ host/log-file
 *.pem
 *.crx
 dist/
+store-assets/.tmp/
 __pycache__/
