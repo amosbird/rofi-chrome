@@ -35,12 +35,14 @@ function openUrlInNewTab(input) {
 
 /// TODO: Filter results
 function refreshHistory(callback) {
-    const oneWeekAgo = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
+    // const oneWeekAgo = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
+    const oneMonthAgo = new Date().getTime() - 30 * 24 * 60 * 60 * 1000;
+    // const oneYearAgo = new Date().getTime() - 365 * 24 * 60 * 60 * 1000;
     chrome.history.search(
         {
             text: "",
-            startTime: oneWeekAgo,
-            maxResults: 5000,
+            startTime: oneMonthAgo,
+            maxResults: 20000,
         },
         function (results) {
             callback(results);
@@ -48,17 +50,27 @@ function refreshHistory(callback) {
     );
 }
 
+function ensureNativePort() {
+    if (state.port) return state.port;
+    state.port = chrome.runtime.connectNative(HOST_NAME);
+    state.port.onMessage.addListener(onNativeMessage);
+    state.port.onDisconnect.addListener(onDisconnected);
+    return state.port;
+}
+
+function postNativeMessage(message) {
+    try {
+        ensureNativePort().postMessage(message);
+    } catch (error) {
+        console.error("Error sending native message:", error);
+    }
+}
+
 /*** commands ***/
 
 const CMDS = {
     switchTab() {
         chrome.tabs.query({}, function (tabs) {
-            // Ensure state.port is initialized
-            if (!state.port) {
-                console.error("Error: state.port is not initialized.");
-                return;
-            }
-
             // Check for any errors in the tabs query
             if (chrome.runtime.lastError) {
                 console.error("Error querying tabs:", chrome.runtime.lastError);
@@ -85,42 +97,29 @@ const CMDS = {
                 const tabIds = tabs.map((e) => e.id);
 
                 // Send combined options to rofi
-                try {
-                    state.port.postMessage({
-                        info: "switchTab",
-                        param: {
-                            "rofi-opts": [
-                                "-matching",
-                                "normal",
-                                "-i",
-                                "-p",
-                                "Search",
-                            ],
-                            opts: combinedOpts,
-                            tabIds: tabIds,
-                        },
-                    });
-                } catch (error) {
-                    console.error(
-                        "Error sending message via state.port:",
-                        error,
-                    );
-                }
+                postNativeMessage({
+                    info: "switchTab",
+                    param: {
+                        "rofi-opts": [
+                            "-matching",
+                            "normal",
+                            "-i",
+                            "-p",
+                            "Search",
+                        ],
+                        opts: combinedOpts,
+                        tabIds: tabIds,
+                    },
+                });
             });
         });
     },
 
     listDownloads() {
         chrome.downloads.search({}, function (results) {
-            // Ensure state.port is initialized
-            if (!state.port) {
-                console.error("Error: state.port is not initialized.");
-                return;
-            }
-
-            // Check for any errors in the tabs query
+            // Check for any errors in the downloads query
             if (chrome.runtime.lastError) {
-                console.error("Error querying tabs:", chrome.runtime.lastError);
+                console.error("Error querying downloads:", chrome.runtime.lastError);
                 return;
             }
 
@@ -132,33 +131,29 @@ const CMDS = {
                 (a, b) => new Date(b.startTime) - new Date(a.startTime),
             );
 
-            try {
-                state.port.postMessage({
-                    info: "listDownloads",
-                    param: {
-                        "rofi-opts": [
-                            "-matching",
-                            "normal",
-                            "-i",
-                            "-p",
-                            "Search",
-                            "-kb-accept-custom",
-                            "Shift-Return",
-                            "-kb-custom-1",
-                            "Control-Return",
-                        ],
-                        opts: existingDownloads.map((e) => e.filename),
-                    },
-                });
-            } catch (error) {
-                console.error("Error sending message via state.port:", error);
-            }
+            postNativeMessage({
+                info: "listDownloads",
+                param: {
+                    "rofi-opts": [
+                        "-matching",
+                        "normal",
+                        "-i",
+                        "-p",
+                        "Search",
+                        "-kb-accept-custom",
+                        "Shift-Return",
+                        "-kb-custom-1",
+                        "Control-Return",
+                    ],
+                    opts: existingDownloads.map((e) => e.filename),
+                },
+            });
         });
     },
 
     openHistory() {
         refreshHistory(function (results) {
-            state.port.postMessage({
+            postNativeMessage({
                 info: "openHistory",
                 param: {
                     "rofi-opts": ["-matching", "normal", "-i", "-p", "history"],
@@ -180,7 +175,7 @@ const CMDS = {
                 const pageOrigin = new URL(tabInfo[0].url).origin;
 
                 refreshHistory(function (results) {
-                    state.port.postMessage({
+                    postNativeMessage({
                         info: "changeToPage",
                         param: {
                             "rofi-opts": [
@@ -239,7 +234,8 @@ function onNativeMessage(message) {
 }
 
 function onDisconnected() {
-    console.log("Failed to connect: " + chrome.runtime.lastError.message);
+    const error = chrome.runtime.lastError;
+    if (error) console.error("Native host disconnected: " + error.message);
     state.port = null;
 }
 
@@ -282,26 +278,15 @@ function addChromeListeners() {
                             if (results.length > 0) {
                                 const downloadItem = results[0];
                                 if (downloadItem.exists) {
-                                    // Ensure state.port is initialized
-                                    if (!state.port) {
-                                        console.error("Error: state.port is not initialized.");
-                                        return;
-                                    }
-
-                                    // Check for any errors in the tabs query
                                     if (chrome.runtime.lastError) {
-                                        console.error("Error querying tabs:", chrome.runtime.lastError);
+                                        console.error("Error querying downloads:", chrome.runtime.lastError);
                                         return;
                                     }
 
-                                    try {
-                                        state.port.postMessage({
-                                            info: "copyDownload",
-                                            param: downloadItem.filename,
-                                        });
-                                    } catch (error) {
-                                        console.error("Error sending message via state.port:", error);
-                                    }
+                                    postNativeMessage({
+                                        info: "copyDownload",
+                                        param: downloadItem.filename,
+                                    });
                                 }
                             }
                         },
@@ -320,8 +305,5 @@ function addChromeListeners() {
 
 /*** main ***/
 
-state.port = chrome.runtime.connectNative(HOST_NAME);
-state.port.onMessage.addListener(onNativeMessage);
-state.port.onDisconnect.addListener(onDisconnected);
-
+ensureNativePort();
 addChromeListeners();

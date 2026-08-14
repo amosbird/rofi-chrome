@@ -1,127 +1,53 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-OS="$(uname -s)"
-NAME="io.github.tcode2k16.rofi.chrome"
-SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
-SOURCE_DIR="$SOURCE_DIR/../host"
+NAME=io.github.tcode2k16.rofi.chrome
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+PREFIX="$HOME/.local/share/rofi-chrome"
+CHROMIUM_CONFIG_DIR="$HOME/.config/chromium"
 
-# colors
-none='\033[0m'
-bold='\033[1m'
-red='\033[31m'
-green='\033[32m'
-yellow='\033[33m'
-blue='\033[34m'
-magenta='\033[35m'
-cyan='\033[36m'
+usage() {
+    printf 'usage: %s [--prefix DIR] [--chromium-config-dir DIR]\n' "$0"
+}
 
-main() {
-
-  # setup
-  chmod +x "$SOURCE_DIR/main.py"
-
-  print_horizontal_line
-
-  # Dependencies
-  printf "${green}Checking Dependencies${none}: python rofi\n"
-
-  check_dependency python Python https://www.python.org
-  check_dependency rofi rofi https://github.com/davatorium/rofi
-
-  print_horizontal_line
-
-  # OS
-  case "$OS" in
-    Linux)
-      if command -v "vivaldi" >/dev/null 2>&1; then
-        on_key 'Install for vivaldi? (y/n)'
-        if test "$key" = 'y'; then
-          browser_install "$HOME/.config/vivaldi/NativeMessagingHosts" "vivaldi"
-        fi
-      fi
-
-      if command -v "google-chrome" >/dev/null 2>&1; then
-        on_key 'Install for google-chrome? (y/n)'
-        if test "$key" = 'y'; then
-          browser_install "$HOME/.config/google-chrome/NativeMessagingHosts" "google-chrome"
-        fi
-      fi
-
-      if command -v "chromium-browser" >/dev/null 2>&1; then
-        on_key 'Install for chromium-browser? (y/n)'
-        if test "$key" = 'y'; then
-          browser_install "$HOME/.config/chromium/NativeMessagingHosts" "chromium-browser"
-        fi
-      fi
-
-      if command -v "firefox" >/dev/null 2>&1; then
-        on_key 'Install for firefox? (y/n)'
-        if test "$key" = 'y'; then
-          browser_install "$HOME/.mozilla/native-messaging-hosts" "firefox"
-        fi
-      fi
-      ;;
+while (($#)); do
+    case "$1" in
+    --prefix)
+        PREFIX=$2
+        shift 2
+        ;;
+    --chromium-config-dir)
+        CHROMIUM_CONFIG_DIR=$2
+        shift 2
+        ;;
+    -h|--help)
+        usage
+        exit 0
+        ;;
     *)
-      printf "${red}Error${none} %s is not currently supported" "$OS"
-      ;;
-  esac
+        usage >&2
+        exit 2
+        ;;
+    esac
+done
 
-}
+command -v python3 >/dev/null
+command -v rofi >/dev/null
 
-browser_install() {
-  TARGET_DIR=$1
-  browser_name=$2
+mkdir -p "$PREFIX/host" "$PREFIX/extension"
+if [[ $(realpath "$ROOT/host") != $(realpath "$PREFIX/host") ]]; then
+    cp "$ROOT/host/main.py" "$PREFIX/host/"
+fi
+if [[ -d "$ROOT/extension" && $(realpath "$ROOT/extension") != $(realpath "$PREFIX/extension") ]]; then
+    cp -R "$ROOT/extension/." "$PREFIX/extension/"
+fi
+chmod +x "$PREFIX/host/main.py"
 
-  mkdir -p "$TARGET_DIR"
+manifest_dir="$CHROMIUM_CONFIG_DIR/NativeMessagingHosts"
+mkdir -p "$manifest_dir"
+sed "s|HOST_PATH|$PREFIX/host/main.py|" \
+    "$ROOT/host/$NAME.chromium-browser.json" > "$manifest_dir/$NAME.json"
 
-  cp "$SOURCE_DIR/$NAME.$browser_name.json" "$TARGET_DIR/$NAME.json"
-
-  HOST_PATH="$SOURCE_DIR/main.py"
-  ESCAPED_HOST_PATH=${HOST_PATH////\\/}
-  sed -i -e "s/HOST_PATH/$ESCAPED_HOST_PATH/" "$TARGET_DIR/$NAME.json"
-
-  chmod o+r "$TARGET_DIR/$NAME.json"
-  printf "❯ ${green}Successfully installed for %s ${none}\n" "$browser_name"
-
-}
-
-# Helpers
-
-on_key() {
-  prompt=$1
-  printf "${blue}❯${none} $prompt\n"
-  read -n 1 key </dev/tty
-  printf '\r'
-}
-
-print_horizontal_line() {
-  COLUMNS=$(tput cols)
-  line=''
-  index=0
-  while test "$index" -lt "$COLUMNS"; do
-    line="${line}─"
-    index=$((index + 1))
-  done
-  printf '%s\n' "$line"
-}
-
-check_dependency() {
-  command=$1
-  name=$2
-  url=$3
-  optional=${4:-no}
-  if command -v "$command" >/dev/null 2>&1; then
-    printf "❯ ${green}%s${none}\n" "$name"
-  else
-    printf "❯ ${red}%s${none}\n" "$name" >/dev/stderr
-    printf 'Please install %s\n' "$name" >/dev/stderr
-    printf '%s\n' "$url" >/dev/stderr
-    if test "$optional" != yes; then
-      exit 1
-    fi
-  fi
-}
-
-main "$@"
+printf 'Native host: %s\nExtension: %s\n' "$manifest_dir/$NAME.json" "$PREFIX/extension"

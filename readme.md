@@ -1,80 +1,62 @@
 # rofi-chrome
 
-rofi-chrome is a browser extension for better tab navigation without injecting javascript code on every tab you open.
+A Chromium extension and native messaging host for controlling tabs, history, and downloads with
+[Rofi](https://github.com/davatorium/rofi).
+
+Extension ID: `aocepclkpgckjeikiphffdlileoaceec`.
 
 ## Features
 
-### Switch between open tabs
+- Switch between open tabs and recent history
+- Open recent history
+- Search history from the current origin
+- Return to the previously active tab
+- List, copy, and open downloads
 
-![](res/open-tab.gif)
+## Install from a release
 
-### Open tab from history
+Requirements: Chromium, Python 3, and Rofi.
 
-![](res/history.gif)
-
-### Search history from same domain
-
-![](res/same-page.gif)
-
-### Go to last tab
-
-![](res/last-tab.gif)
-
-
-## Installation
-
-First, make sure you have [python2](https://www.python.org), [rofi](https://github.com/davatorium/rofi), and one of the [supported browsers](#supported-browsers) installed.
-
-Then, clone the git repo:
-
-```sh
-git clone https://github.com/tcode2k16/rofi-chrome.git
+```bash
+version=1.1.0
+base=https://github.com/amosbird/rofi-chrome/releases/download/v$version
+curl -fLO "$base/rofi-chrome-extension-$version.zip"
+curl -fLO "$base/rofi-chrome-host-$version.tar.gz"
+mkdir -p ~/.local/share/rofi-chrome
+unzip -q "rofi-chrome-extension-$version.zip" -d ~/.local/share/rofi-chrome/extension
+tar -xzf "rofi-chrome-host-$version.tar.gz" -C ~/.local/share/rofi-chrome
+~/.local/share/rofi-chrome/scripts/install.sh \
+    --prefix ~/.local/share/rofi-chrome \
+    --chromium-config-dir ~/.config/chromium
 ```
 
-Install native extension using the provided script:
+Load `~/.local/share/rofi-chrome/extension` as an unpacked extension, or launch Chromium with:
 
+```bash
+chromium --load-extension="$HOME/.local/share/rofi-chrome/extension"
 ```
-cd rofi-chrome
+
+For a custom Chromium profile, pass its user-data directory to `--chromium-config-dir` so the
+native messaging manifest is installed beside that profile.
+
+Configure commands at `chrome://extensions/shortcuts`.
+
+## Development install
+
+```bash
 ./scripts/install.sh
+chromium --load-extension="$PWD/extension"
 ```
 
-Load the unpacked extension located at `rofi-chrome/extension` to the browser of your liking.
+## Build a release
 
-For example, if you are using chrome or chromium:
+```bash
+./scripts/build-release.sh
+sha256sum -c dist/SHA256SUMS
+```
 
-* Go to `chrome://extensions/` in the browser and check the box for Developer mode in the top right.
-* Click the Load unpacked extension button and select the `rofi-chrome/extension` folder to install it.
+## Security
 
-And if you are using firefox:
-
-* Go to `about:debugging#/runtime/this-firefox` in the browser
-* Click the Load Temporary Add-on button and select the `rofi-chrome/extension` folder to install it.
-
-Configure the shortcuts for the various commands (`chrome://extensions/shortcuts` for chrome and chromium / `Manage Extension Shortcuts` in `about:addons` for firefox)
-
-For your reference, I use:
-
-- `alt+a` for `go to last tab`
-- `alt+h` for `open tab from history`
-- `alt+a` for `page-dependent search`
-- `alt+s` for `switch to another tab`
-
-Now, you have the extension working. Yay!
-
-## Supported platforms
-
-- Linux
-- (more in the future)
-
-## Supported browsers
-
-- google chrome
-- chromium
-- firefox
-- (more in the future)
-
-## TODO
-
-- [ ] support for other platforms
-- [ ] support for other browsers
-- [ ] migrate from python2 to python3
+The extension can read tab URLs, browser history, and download paths because those are its core
+inputs. Data is sent only to the local native messaging host. The host invokes local commands
+(`rofi`, and optionally `fcp`, `xdg-open`, and `rofi-browser-blocklist.sh`) without a shell.

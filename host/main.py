@@ -1,129 +1,144 @@
 #!/usr/bin/env python3
 
-import struct
-import sys
 import json
-import subprocess
 import re
-from libqtile.command.client import CommandClient
+import struct
+import subprocess
+import sys
 
-cmd_client = CommandClient()
-obj = cmd_client.navigate("group", "f")
+MAX_MESSAGE_SIZE = 16 * 1024 * 1024
+
+
+def read_exact(stream, size):
+    data = bytearray()
+    while len(data) < size:
+        chunk = stream.read(size - len(data))
+        if not chunk:
+            raise EOFError("native message ended early")
+        data.extend(chunk)
+    return bytes(data)
+
+
+def read_message():
+    header = sys.stdin.buffer.read(4)
+    if not header:
+        return None
+    if len(header) != 4:
+        raise EOFError("native message header ended early")
+    size = struct.unpack("<I", header)[0]
+    if size > MAX_MESSAGE_SIZE:
+        raise ValueError(f"native message is too large: {size} bytes")
+    return json.loads(read_exact(sys.stdin.buffer, size).decode("utf-8"))
 
 
 def send_message(message):
-    message_bytes = message.encode("utf-8")
-    sys.stdout.buffer.write(struct.pack("I", len(message_bytes)))
-    sys.stdout.buffer.write(message_bytes)
+    payload = json.dumps(message).encode("utf-8")
+    sys.stdout.buffer.write(struct.pack("<I", len(payload)))
+    sys.stdout.buffer.write(payload)
     sys.stdout.buffer.flush()
 
 
-LOG_FILE = "/tmp/rofi_script.log"
+def rofi_select(param):
+    command = ["rofi", "-dmenu", *param.get("rofi-opts", [])]
+    result = subprocess.run(
+        command,
+        input="\n".join(param["opts"]),
+        text=True,
+        stdout=subprocess.PIPE,
+        check=False,
+    )
+    return result.returncode, result.stdout.rstrip("\n")
 
 
-def log(msg):
-    with open(LOG_FILE, "a") as f:
-        f.write(f"{msg}\n")
+def blocklist_patterns():
+    try:
+        output = subprocess.run(
+            ["rofi-browser-blocklist.sh"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=True,
+        ).stdout
+        # The shared blocklist prints "label ::: regex"; only the regex is relevant here.
+        return [re.compile(line.rsplit(" ::: ", 1)[-1]) for line in output.splitlines() if line]
+    except (OSError, subprocess.SubprocessError, re.error):
+        return []
 
 
 def switch_tab(param):
-    try:
-        options = param["opts"]
-        rofi_opts = ["rofi", "-dmenu"]
-        if "rofi-opts" in param:
-            rofi_opts.extend(param["rofi-opts"])
-
-        patterns_output = (
-            subprocess.check_output(["rofi-browser-blocklist.sh"])
-            .decode("utf-8")
-            .strip()
-        )
-        patterns = patterns_output.splitlines()
-        compiled_patterns = [re.compile(pattern) for pattern in patterns]
-
-        def is_not_matched(opt):
-            return all(not cp.search(opt) for cp in compiled_patterns)
-
-        options = [opt for opt in param["opts"] if is_not_matched(opt)]
-        sh = subprocess.Popen(rofi_opts, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-        input_data = "\n".join(options)
-        stdout_data, _ = sh.communicate(input=input_data.encode("utf-8"))
-        result = stdout_data.decode("utf-8").strip()
-
-        if result == "":
-            return ""
-
-        obj.call("toscreen")
-
-        try:
-            selected_index = options.index(result)
-            if selected_index < len(param["tabIds"]):
-                return param["tabIds"][selected_index]
-            else:
-                return result.split(" ::: ")[-1]
-        except ValueError:
-            return "g " + result
-    except Exception as e:
-        log(f"Exception in switch_tab: {e}")
+    patterns = blocklist_patterns()
+    visible = [
+        (index, option)
+        for index, option in enumerate(param["opts"])
+        if not any(pattern.search(option) for pattern in patterns)
+    ]
+    selected_options = [option for _, option in visible]
+    returncode, selected = rofi_select({**param, "opts": selected_options})
+    if returncode != 0 or not selected:
         return ""
+
+    try:
+        visible_index = selected_options.index(selected)
+    except ValueError:
+        return "g " + selected
+
+    original_index = visible[visible_index][0]
+    tab_ids = param.get("tabIds", [])
+    if original_index < len(tab_ids):
+        return tab_ids[original_index]
+    return selected.rsplit(" ::: ", 1)[-1]
 
 
 def list_downloads(param):
+    returncode, selected = rofi_select(param)
+    if not selected:
+        return ""
+    if returncode == 0:
+        subprocess.Popen(["fcp", selected])
+    elif returncode == 10:
+        subprocess.Popen(["xdg-open", selected])
+    return ""
+
+
+def copy_download(path):
+    subprocess.Popen(["fcp", path])
+    return ""
+
+
+def select_option(param):
+    returncode, selected = rofi_select(param)
+    return selected if returncode == 0 else ""
+
+
+def handle_message(message):
+    info = message.get("info", "")
+    param = message.get("param", {})
+    handlers = {
+        "switchTab": switch_tab,
+        "listDownloads": list_downloads,
+        "copyDownload": copy_download,
+        "openHistory": select_option,
+        "changeToPage": select_option,
+    }
+    handler = handlers.get(info)
+    if handler is None:
+        return {"result": "", "info": info, "error": f"unknown command: {info}"}
     try:
-        options = param["opts"]
-        rofi_opts = ["rofi", "-dmenu"]
-        if "rofi-opts" in param:
-            rofi_opts.extend(param["rofi-opts"])
-
-        sh = subprocess.Popen(rofi_opts, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-        input_data = "\n".join(options)
-        stdout_data, _ = sh.communicate(input=input_data.encode("utf-8"))
-        ret = sh.wait()
-
-        if ret == 0:
-            subprocess.Popen(["fcp", stdout_data])
-        elif ret == 10:
-            subprocess.Popen(["xdg-open", stdout_data.decode("utf-8").strip()])
-        return ""
-    except Exception as e:
-        log(f"Exception in list_downloads: {e}")
-        return ""
-
-
-def copy_download(param):
-    try:
-        subprocess.Popen(["fcp", param])
-        return ""
-    except Exception as e:
-        log(f"Exception in copy_download: {e}")
-        return ""
+        return {"result": handler(param), "info": info}
+    except Exception as error:
+        return {"result": "", "info": info, "error": str(error)}
 
 
 def main():
     while True:
-        data_length_bytes = sys.stdin.buffer.read(4)
-
-        if len(data_length_bytes) == 0:
-            break
-
-        data_length = struct.unpack("I", data_length_bytes)[0]
-        data = sys.stdin.buffer.read(data_length).decode("utf-8")
-        data = json.loads(data)
-
-        param = data["param"]
-        info = data["info"]
-        if info == "switchTab":
-            output = {"result": switch_tab(param), "info": info}
-        elif info == "listDownloads":
-            output = {"result": list_downloads(param), "info": info}
-        elif info == "copyDownload":
-            output = {"result": copy_download(param), "info": info}
-        else:
-            output = {"result": f"unknown command: {info}"}
-
-        send_message(json.dumps(output))
-
-    sys.exit(0)
+        try:
+            message = read_message()
+            if message is None:
+                return
+            send_message(handle_message(message))
+        except (EOFError, ValueError, json.JSONDecodeError) as error:
+            print(error, file=sys.stderr)
+            return
 
 
 if __name__ == "__main__":
