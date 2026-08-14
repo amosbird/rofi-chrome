@@ -88,6 +88,7 @@ class ReleaseTest(unittest.TestCase):
 
     def test_native_host_allows_extension_id_override(self):
         source = (ROOT / "scripts/install.sh").read_text()
+        self.assertIn("jpgfhlaplofoaempbhliigmjbpofeghk", source)
         self.assertIn("--extension-id", source)
         self.assertIn("EXTENSION_ID", source)
 

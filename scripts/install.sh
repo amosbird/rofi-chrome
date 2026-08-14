@@ -8,7 +8,7 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 PREFIX="$HOME/.local/share/rofi-chrome"
 CHROMIUM_CONFIG_DIR="$HOME/.config/chromium"
-EXTENSION_ID=aocepclkpgckjeikiphffdlileoaceec
+EXTENSION_ID=jpgfhlaplofoaempbhliigmjbpofeghk
 
 usage() {
     printf 'usage: %s [--prefix DIR] [--chromium-config-dir DIR] [--extension-id ID]\n' "$0"

@@ -40,10 +40,12 @@ Copy the single-purpose statement and each permission justification from `store-
 
 Copy the reviewer instructions from `store-listing.md`. No credentials are required.
 
-## After the first upload
+## Store Item ID
 
-Record the Item ID assigned by the Developer Dashboard. Before submitting for review:
+`jpgfhlaplofoaempbhliigmjbpofeghk`
 
-1. Install the native host with `./scripts/install.sh --extension-id ITEM_ID`.
-2. Restart Chromium and confirm the toolbar popup says `Local host connected`.
-3. Send the Item ID back so `serverconfig`, Qtile URLs, and the managed policy can be updated.
+Install the native host with:
+
+```bash
+./scripts/install.sh --extension-id jpgfhlaplofoaempbhliigmjbpofeghk
+```

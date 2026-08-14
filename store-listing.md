@@ -89,7 +89,7 @@ Platform: Linux with Chromium, Python 3, and Rofi.
 3. Run:
 
    ```bash
-   ./scripts/install.sh --extension-id ITEM_ID_FROM_DASHBOARD
+   ./scripts/install.sh --extension-id jpgfhlaplofoaempbhliigmjbpofeghk
    ```
 
 4. Restart Chromium.

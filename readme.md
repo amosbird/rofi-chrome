@@ -3,8 +3,8 @@
 A Chromium extension and native messaging host for controlling tabs, history, and downloads with
 [Rofi](https://github.com/davatorium/rofi).
 
-Extension ID for the development build: `aocepclkpgckjeikiphffdlileoaceec`.
-The Chrome Web Store assigns its item ID on the first upload; pass that ID to the host installer.
+Chrome Web Store Item ID: `jpgfhlaplofoaempbhliigmjbpofeghk`.
+Development builds retain the historical local ID `aocepclkpgckjeikiphffdlileoaceec`.
 
 ## Features
 
@@ -34,7 +34,8 @@ tar -xzf "rofi-chrome-host-$version.tar.gz" -C ~/.local/share/rofi-chrome
 For a Chrome Web Store installation, also pass the Item ID shown in the Developer Dashboard:
 
 ```bash
-~/.local/share/rofi-chrome/scripts/install.sh --extension-id YOUR_STORE_ITEM_ID
+~/.local/share/rofi-chrome/scripts/install.sh \
+    --extension-id jpgfhlaplofoaempbhliigmjbpofeghk
 ```
 
 Load `~/.local/share/rofi-chrome/extension` as an unpacked extension, or launch Chromium with:
