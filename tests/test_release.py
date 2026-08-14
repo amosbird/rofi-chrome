@@ -14,7 +14,7 @@ class ReleaseTest(unittest.TestCase):
             manifest["permissions"],
             ["nativeMessaging", "tabs", "history", "downloads"],
         )
-        self.assertEqual(manifest["version"], "1.2.0")
+        self.assertEqual(manifest["version"], "1.2.1")
         self.assertNotIn("content_scripts", manifest)
         self.assertEqual(manifest["action"]["default_popup"], "popup.html")
         self.assertEqual(
@@ -65,6 +65,26 @@ class ReleaseTest(unittest.TestCase):
         source = (ROOT / "scripts/build-release.sh").read_text()
         self.assertIn("rofi-chrome-cws-", source)
         self.assertIn('manifest.pop("key", None)', source)
+
+    def test_native_host_uses_amosbird_identifier_only(self):
+        files = [
+            ROOT / "extension/bg.js",
+            ROOT / "scripts/install.sh",
+            ROOT / "scripts/uninstall.sh",
+            *ROOT.glob("host/*.json"),
+        ]
+        combined = "\n".join(path.read_text() for path in files)
+        self.assertIn("io.github.amosbird.rofi.chrome", combined)
+        self.assertNotIn("HOST_NAME = \"io.github.tcode2k16.rofi.chrome\"", combined)
+        self.assertNotIn('"name": "io.github.tcode2k16.rofi.chrome"', combined)
+        self.assertTrue(
+            (ROOT / "host/io.github.amosbird.rofi.chrome.chromium.json").is_file()
+        )
+
+    def test_installer_removes_legacy_native_host_manifest(self):
+        source = (ROOT / "scripts/install.sh").read_text()
+        self.assertIn("LEGACY_NAME=io.github.tcode2k16.rofi.chrome", source)
+        self.assertIn('rm -f "$manifest_dir/$LEGACY_NAME.json"', source)
 
     def test_native_host_allows_extension_id_override(self):
         source = (ROOT / "scripts/install.sh").read_text()

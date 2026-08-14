@@ -19,7 +19,7 @@ The Chrome Web Store assigns its item ID on the first upload; pass that ID to th
 Requirements: Chromium, Python 3, and Rofi.
 
 ```bash
-version=1.2.0
+version=1.2.1
 base=https://github.com/amosbird/rofi-chrome/releases/download/v$version
 curl -fLO "$base/rofi-chrome-extension-$version.zip"
 curl -fLO "$base/rofi-chrome-host-$version.tar.gz"
@@ -68,10 +68,10 @@ Build the upload package and checksums:
 
 ```bash
 ./scripts/build-release.sh
-unzip -l dist/rofi-chrome-cws-1.2.0.zip
+unzip -l dist/rofi-chrome-cws-1.2.1.zip
 ```
 
-Upload `dist/rofi-chrome-cws-1.2.0.zip`. It deliberately omits the development `key`; after the
+Upload `dist/rofi-chrome-cws-1.2.1.zip`. It deliberately omits the development `key`; after the
 first upload, use the Item ID from the dashboard when installing the native host. Submission copy is
 in `store-listing.md`, the privacy policy is in `PRIVACY.md`, and listing images are in
 `store-assets/`.

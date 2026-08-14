@@ -1,93 +1,33 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-OS="$(uname -s)"
-NAME="io.github.tcode2k16.rofi.chrome"
-SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
-SOURCE_DIR="$SOURCE_DIR/../host"
+NAME=io.github.amosbird.rofi.chrome
+LEGACY_NAME=io.github.tcode2k16.rofi.chrome
+CHROMIUM_CONFIG_DIR="$HOME/.config/chromium"
+PREFIX="$HOME/.local/share/rofi-chrome"
 
-# colors
-none='\033[0m'
-bold='\033[1m'
-red='\033[31m'
-green='\033[32m'
-yellow='\033[33m'
-blue='\033[34m'
-magenta='\033[35m'
-cyan='\033[36m'
-
-main() {
-
-  print_horizontal_line
-
-  # OS
-  case "$OS" in
-    Linux)
-      if command -v "vivaldi" >/dev/null 2>&1; then
-        on_key 'Uninstall for vivaldi? (y/n)'
-        if test "$key" = 'y'; then
-          browser_uninstall "$HOME/.config/vivaldi/NativeMessagingHosts" "vivaldi"
-        fi
-      fi
-
-      if command -v "google-chrome" >/dev/null 2>&1; then
-        on_key 'Uninstall for google-chrome? (y/n)'
-        if test "$key" = 'y'; then
-          browser_uninstall "$HOME/.config/google-chrome/NativeMessagingHosts" "google-chrome"
-        fi
-      fi
-
-      if command -v "chromium-browser" >/dev/null 2>&1; then
-        on_key 'Uninstall for chromium-browser? (y/n)'
-        if test "$key" = 'y'; then
-          browser_uninstall "$HOME/.config/chromium/NativeMessagingHosts" "chromium-browser"
-        fi
-      fi
-
-      if command -v "firefox" >/dev/null 2>&1; then
-        on_key 'Uninstall for firefox? (y/n)'
-        if test "$key" = 'y'; then
-          browser_uninstall "$HOME/.mozilla/native-messaging-hosts" "firefox"
-        fi
-      fi
-      ;;
+while (($#)); do
+    case "$1" in
+    --chromium-config-dir)
+        CHROMIUM_CONFIG_DIR=$2
+        shift 2
+        ;;
+    --prefix)
+        PREFIX=$2
+        shift 2
+        ;;
+    -h|--help)
+        printf 'usage: %s [--prefix DIR] [--chromium-config-dir DIR]\n' "$0"
+        exit 0
+        ;;
     *)
-      printf "${red}Error${none} %s is not currently supported" "$OS"
-      ;;
-  esac
+        exit 2
+        ;;
+    esac
+done
 
-}
-
-browser_uninstall() {
-  TARGET_DIR=$1
-  browser_name=$2
-  config_file="$TARGET_DIR/$NAME.json"
-  if test -f "$config_file"; then
-    rm "$config_file"
-  fi
-
-  printf "❯ ${green}Successfully uninstalled for %s ${none}\n" "$browser_name"
-}
-
-# Helpers
-
-on_key() {
-  prompt=$1
-  printf "${blue}❯${none} $prompt\n"
-  read -n 1 key </dev/tty
-  printf '\r'
-}
-
-print_horizontal_line() {
-  COLUMNS=$(tput cols)
-  line=''
-  index=0
-  while test "$index" -lt "$COLUMNS"; do
-    line="${line}─"
-    index=$((index + 1))
-  done
-  printf '%s\n' "$line"
-}
-
-main "$@"
+manifest_dir="$CHROMIUM_CONFIG_DIR/NativeMessagingHosts"
+rm -f "$manifest_dir/$NAME.json" "$manifest_dir/$LEGACY_NAME.json"
+rm -rf "$PREFIX"
+printf 'Removed Rofi Browser Controller native host.\n'

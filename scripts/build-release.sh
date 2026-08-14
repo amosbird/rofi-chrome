@@ -20,8 +20,8 @@ manifest = json.loads(path.read_text())
 manifest.pop("key", None)
 path.write_text(json.dumps(manifest, indent=4) + "\n")
 PY
-cp host/main.py host/io.github.tcode2k16.rofi.chrome.chromium-browser.json "$DIST/host/host/"
-cp scripts/install.sh "$DIST/host/scripts/"
+cp host/main.py host/io.github.amosbird.rofi.chrome.chromium.json "$DIST/host/host/"
+cp scripts/install.sh scripts/uninstall.sh "$DIST/host/scripts/"
 
 (
     cd "$DIST/extension"

@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-NAME=io.github.tcode2k16.rofi.chrome
+NAME=io.github.amosbird.rofi.chrome
+LEGACY_NAME=io.github.tcode2k16.rofi.chrome
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 PREFIX="$HOME/.local/share/rofi-chrome"
@@ -52,8 +53,9 @@ chmod +x "$PREFIX/host/main.py"
 
 manifest_dir="$CHROMIUM_CONFIG_DIR/NativeMessagingHosts"
 mkdir -p "$manifest_dir"
+rm -f "$manifest_dir/$LEGACY_NAME.json"
 sed -e "s|HOST_PATH|$PREFIX/host/main.py|" \
     -e "s|EXTENSION_ID|$EXTENSION_ID|" \
-    "$ROOT/host/$NAME.chromium-browser.json" > "$manifest_dir/$NAME.json"
+    "$ROOT/host/$NAME.chromium.json" > "$manifest_dir/$NAME.json"
 
 printf 'Native host: %s\nExtension: %s\n' "$manifest_dir/$NAME.json" "$PREFIX/extension"

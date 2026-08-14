@@ -2,11 +2,11 @@
 
 ## Upload package
 
-Upload this file from the v1.2.0 GitHub release:
+Upload this file from the v1.2.1 GitHub release:
 
-`rofi-chrome-cws-1.2.0.zip`
+`rofi-chrome-cws-1.2.1.zip`
 
-https://github.com/amosbird/rofi-chrome/releases/download/v1.2.0/rofi-chrome-cws-1.2.0.zip
+https://github.com/amosbird/rofi-chrome/releases/download/v1.2.1/rofi-chrome-cws-1.2.1.zip
 
 ## Store listing
 

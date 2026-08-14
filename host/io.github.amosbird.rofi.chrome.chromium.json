@@ -1,6 +1,6 @@
 {
-  "name": "io.github.tcode2k16.rofi.chrome",
-  "description": "rofi chrome",
+  "name": "io.github.amosbird.rofi.chrome",
+  "description": "Rofi Browser Controller",
   "path": "HOST_PATH",
   "type": "stdio",
   "allowed_origins": [

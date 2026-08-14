@@ -1,6 +1,6 @@
 /*** data ***/
 
-const HOST_NAME = "io.github.tcode2k16.rofi.chrome";
+const HOST_NAME = "io.github.amosbird.rofi.chrome";
 
 let state = {
     port: null,

@@ -84,8 +84,8 @@ https://amosbird.github.io/rofi-chrome/privacy
 Platform: Linux with Chromium, Python 3, and Rofi.
 
 1. Open the release page:
-   https://github.com/amosbird/rofi-chrome/releases/tag/v1.2.0
-2. Download and extract `rofi-chrome-host-1.2.0.tar.gz`.
+   https://github.com/amosbird/rofi-chrome/releases/tag/v1.2.1
+2. Download and extract `rofi-chrome-host-1.2.1.tar.gz`.
 3. Run:
 
    ```bash
