@@ -49,12 +49,17 @@ class ReleaseTest(unittest.TestCase):
             "extension/icons/icon128.png",
             "store-assets/screenshot-tabs.png",
             "store-assets/screenshot-history.png",
-            "store-assets/screenshot-downloads.png",
+            "store-assets/screenshot-site-history.png",
             "store-assets/small-promo.png",
             "PRIVACY.md",
             "store-listing.md",
         ):
             self.assertTrue((ROOT / path).is_file(), path)
+
+    def test_store_metadata_uses_live_privacy_url(self):
+        listing = (ROOT / "store-listing.md").read_text()
+        self.assertIn("https://amosbird.github.io/rofi-chrome/privacy", listing)
+        self.assertNotIn("after enabling GitHub Pages", listing)
 
     def test_release_builder_emits_store_zip_without_development_key(self):
         source = (ROOT / "scripts/build-release.sh").read_text()

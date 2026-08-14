@@ -76,25 +76,27 @@ Certifications:
 - Data is not used or transferred for advertising, creditworthiness, or lending.
 - Human access to user data is not provided.
 
-Privacy policy URL after enabling GitHub Pages:
-https://amosbird.github.io/rofi-chrome/privacy.html
+Privacy policy URL:
+https://amosbird.github.io/rofi-chrome/privacy
 
 ## Test instructions for reviewers
 
 Platform: Linux with Chromium, Python 3, and Rofi.
 
-1. Download the `rofi-chrome-host-1.2.0.tar.gz` asset from the GitHub release.
-2. Extract it and run:
+1. Open the release page:
+   https://github.com/amosbird/rofi-chrome/releases/tag/v1.2.0
+2. Download and extract `rofi-chrome-host-1.2.0.tar.gz`.
+3. Run:
 
    ```bash
    ./scripts/install.sh --extension-id ITEM_ID_FROM_DASHBOARD
    ```
 
-3. Restart Chromium.
-4. Click the extension toolbar icon. It should report `Local host connected`.
-5. Open several tabs, click **Switch tab**, and select one in Rofi.
-6. Click **Browse history** and select a result.
-7. Click **Downloads** after downloading a file.
+4. Restart Chromium.
+5. Click the extension toolbar icon. It should report `Local host connected`.
+6. Open several tabs, click **Switch tab**, and select one in Rofi.
+7. Click **Browse history** and select a result.
+8. Click **Downloads** after downloading a file.
 
 No account or test credentials are required. If the review environment cannot run a graphical Linux
 Rofi session, the complete native-host source and protocol are available in the linked public
