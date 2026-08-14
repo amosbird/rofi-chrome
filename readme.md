@@ -18,7 +18,7 @@ Extension ID: `aocepclkpgckjeikiphffdlileoaceec`.
 Requirements: Chromium, Python 3, and Rofi.
 
 ```bash
-version=1.1.0
+version=1.1.1
 base=https://github.com/amosbird/rofi-chrome/releases/download/v$version
 curl -fLO "$base/rofi-chrome-extension-$version.zip"
 curl -fLO "$base/rofi-chrome-host-$version.tar.gz"

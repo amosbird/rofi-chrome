@@ -14,7 +14,7 @@ class ReleaseTest(unittest.TestCase):
             manifest["permissions"],
             ["nativeMessaging", "tabs", "history", "downloads"],
         )
-        self.assertEqual(manifest["version"], "1.1.0")
+        self.assertEqual(manifest["version"], "1.1.1")
         self.assertNotIn("content_scripts", manifest)
 
     def test_native_host_is_portable(self):
