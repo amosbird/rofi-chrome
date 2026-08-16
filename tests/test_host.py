@@ -50,6 +50,33 @@ class HostTest(unittest.TestCase):
         ):
             self.assertEqual(HOST.switch_tab(param), 20)
 
+    def test_open_bookmark_hides_scratchpad_and_launches_main_browser(self):
+        with (
+            mock.patch.object(HOST.socket, "socket") as socket_factory,
+            mock.patch.object(HOST.subprocess, "Popen") as popen,
+        ):
+            self.assertEqual(HOST.open_in_browser({"url": "https://example.com/path"}), "")
+        socket_factory.return_value.__enter__.return_value.connect.assert_called_once_with(
+            str(pathlib.Path.home() / ".cache/qtile/qtilesocket.:0")
+        )
+        socket_factory.return_value.__enter__.return_value.sendall.assert_called_once_with(
+            b'[[["group","scratchpad"]],"dropdown_toggle",["bookmarks"],{},true]'
+        )
+        popen.assert_called_once_with(
+            ["/home/amos/scripts/chromium", "https://example.com/path"],
+            stdout=HOST.subprocess.DEVNULL,
+            stderr=HOST.subprocess.DEVNULL,
+        )
+
+    def test_open_bookmark_rejects_non_http_urls(self):
+        with (
+            mock.patch.object(HOST.socket, "socket") as socket_factory,
+            mock.patch.object(HOST.subprocess, "Popen") as popen,
+        ):
+            self.assertEqual(HOST.open_in_browser({"url": "file:///tmp/private"}), "")
+        socket_factory.assert_not_called()
+        popen.assert_not_called()
+
     def test_history_is_handled_by_native_host(self):
         with mock.patch.object(HOST, "rofi_select", return_value=(0, "Title ::: https://x")):
             self.assertEqual(

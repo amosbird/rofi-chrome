@@ -1,0 +1,296 @@
+* {
+    box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+:root {
+    color-scheme: dark;
+    font: 15px system-ui, sans-serif;
+}
+
+body {
+    margin: 0;
+    color: #e8e8e8;
+    background: #171717;
+}
+
+button, input, select, textarea {
+    color: inherit;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background: #2d2d2d;
+    font: inherit;
+}
+
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+button:hover, button:focus-visible {
+    background: #414141;
+    outline: none;
+}
+
+button:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+input, select, textarea {
+    padding: 9px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 62px;
+    max-height: 150px;
+    overflow-y: auto;
+    resize: none;
+}
+
+h1, h2, p {
+    margin-top: 0;
+}
+
+h1 {
+    margin-bottom: 4px;
+    font-size: 28px;
+}
+
+h2 {
+    margin-bottom: 6px;
+    font-size: 20px;
+}
+
+kbd {
+    color: #aaa;
+    font-size: 11px;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px 14px;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.app-header p, .panel-header p {
+    margin-bottom: 0;
+    color: #aaa;
+}
+
+.permission-panel {
+    max-width: 1100px;
+    margin: 28px auto;
+    padding: 22px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: #222;
+}
+
+.workspace {
+    display: grid;
+    max-width: 1500px;
+    margin: 16px auto 24px;
+    padding: 0 18px;
+    gap: 14px;
+}
+
+.capture-panel, .library {
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: #222;
+}
+
+.capture-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.capture-status .status {
+    flex: 1;
+}
+
+.capture-panel {
+    padding: 16px 18px 12px;
+}
+
+.primary {
+    color: #171717;
+    border-color: #ffb300;
+    background: #ffb300;
+    font-weight: 600;
+}
+
+.primary:hover, .primary:focus-visible {
+    background: #ffc233;
+}
+
+.panel-header, .save-bar, .library-toolbar, .context-actions, .dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.summary {
+    margin: 10px 0;
+    color: #aaa;
+}
+
+.preview-list {
+    max-height: 330px;
+    overflow: auto;
+    border: 1px solid #3d3d3d;
+    border-radius: 5px;
+}
+
+.preview-row, .bookmark-row {
+    display: grid;
+    grid-template-columns: 26px minmax(180px, 0.8fr) minmax(280px, 1.4fr) minmax(180px, 0.7fr);
+    gap: 10px;
+    align-items: center;
+    padding: 9px 11px;
+    border-bottom: 1px solid #393939;
+}
+
+.preview-row:last-child, .bookmark-row:last-child {
+    border-bottom: 0;
+}
+
+.preview-row input[type="text"] {
+    width: 100%;
+}
+
+.preview-row.duplicate {
+    opacity: 0.55;
+}
+
+.url, .path {
+    color: #aaa;
+    overflow-wrap: anywhere;
+}
+
+.badge {
+    color: #ffb300;
+    font-size: 12px;
+}
+
+.save-bar {
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+
+.status {
+    min-height: 1.2em;
+    margin: 10px 0 0;
+    color: #ffb300;
+}
+
+.library {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    max-width: none;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+aside {
+    min-height: 420px;
+    padding: 14px;
+    border-right: 1px solid #444;
+}
+
+.folder {
+    display: block;
+    width: 100%;
+    margin-bottom: 2px;
+    overflow: hidden;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.folder.active {
+    color: #ffb300;
+    background: #373737;
+}
+
+.library-main {
+    min-width: 0;
+    padding: 16px;
+}
+
+.library-toolbar input {
+    width: min(620px, 80%);
+}
+
+.context-actions {
+    justify-content: flex-start;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    background: #303030;
+}
+
+.bookmark-list {
+    margin-top: 8px;
+    border: 1px solid #3d3d3d;
+    border-radius: 5px;
+}
+
+.bookmark-row:hover, .bookmark-row.selected {
+    background: #2c2c2c;
+}
+
+.bookmark-row a {
+    color: #e8e8e8;
+    text-decoration: none;
+}
+
+.danger {
+    color: #ffaaaa;
+}
+
+dialog {
+    color: inherit;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background: #222;
+}
+
+dialog pre {
+    padding: 10px;
+    overflow: auto;
+    border-radius: 5px;
+    color: #ddd;
+    background: #191919;
+}
+
+dialog::backdrop {
+    background: #000a;
+}
+
+dialog form {
+    display: grid;
+    min-width: 420px;
+    gap: 14px;
+}
+
+dialog label {
+    display: grid;
+    gap: 5px;
+}
+
+.dialog-actions {
+    justify-content: flex-end;
+}

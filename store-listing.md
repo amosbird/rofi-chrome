@@ -4,7 +4,7 @@
 
 **Name:** Rofi Browser Controller
 
-**Summary:** Control Chromium tabs, browsing history, and downloads through a local Rofi menu.
+**Summary:** Control Chromium tabs, history, downloads, and bookmarks through local interfaces.
 
 **Category:** Productivity
 
@@ -22,7 +22,9 @@ Features:
 - Search history limited to the current website.
 - Return to the previously active tab.
 - List completed downloads, copy a path, or open a selected file.
-- Launch every command from the toolbar popup or configurable extension shortcuts.
+- Optionally grant bookmark access to bulk-add raw URLs without visiting them.
+- Search existing bookmarks and move or delete selected entries.
+- Launch browser commands from the toolbar popup or configurable extension shortcuts.
 
 The extension requires the companion native messaging host and Rofi. All browser information stays
 on the user's computer. There is no telemetry, account, advertising, or remote service.
@@ -32,7 +34,8 @@ https://github.com/amosbird/rofi-chrome
 
 ## Single purpose
 
-Provide a local Rofi interface for navigating Chromium tabs, browsing history, and downloaded files.
+Provide local interfaces for navigating Chromium tabs, browsing history, downloads, and optional
+bookmark management.
 
 ## Permission justifications
 
@@ -56,6 +59,13 @@ website. History is processed locally and is not retained by the extension.
 Required to list completed download filenames and local paths, and to react when a download
 finishes. The selected path is passed only to the local native host.
 
+### bookmarks (optional)
+
+Requested only after the user opens Bookmark Manager and clicks **Enable bookmark access**. It is
+used to bulk-add raw HTTP(S) URLs without visiting them, list and search bookmark metadata, create
+folders, and move or delete entries explicitly selected by the user. Bookmark data remains in
+Chromium and is never sent to the native host or a remote service.
+
 ## Remote code
 
 **No.** The extension does not execute remote code. All JavaScript and CSS are included in the
@@ -68,6 +78,8 @@ Disclose the following data types in the Privacy practices tab:
 - Web history: titles, URLs, and visit times.
 - Website content: tab titles and URLs (metadata only; page contents are not read).
 - User activity: open-tab and download metadata used for the requested local menu.
+- Personal communications or user-provided content: bookmark titles, URLs, and folder paths handled
+  locally after optional permission is granted.
 
 Certifications:
 
@@ -84,8 +96,8 @@ https://amosbird.github.io/rofi-chrome/privacy
 Platform: Linux with Chromium, Python 3, and Rofi.
 
 1. Open the release page:
-   https://github.com/amosbird/rofi-chrome/releases/tag/v1.2.1
-2. Download and extract `rofi-chrome-host-1.2.1.tar.gz`.
+   https://github.com/amosbird/rofi-chrome/releases/tag/v1.3.0
+2. Download and extract `rofi-chrome-host-1.3.0.tar.gz`.
 3. Run:
 
    ```bash
@@ -97,6 +109,8 @@ Platform: Linux with Chromium, Python 3, and Rofi.
 6. Open several tabs, click **Switch tab**, and select one in Rofi.
 7. Click **Browse history** and select a result.
 8. Click **Downloads** after downloading a file.
+9. Click **Bookmark manager**, then **Enable bookmark access**. Add two raw URLs, search them,
+   select one, and test moving it to another folder. Delete only a disposable test bookmark.
 
 No account or test credentials are required. If the review environment cannot run a graphical Linux
 Rofi session, the complete native-host source and protocol are available in the linked public

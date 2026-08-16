@@ -3,7 +3,8 @@
 _Last updated: August 14, 2026_
 
 Rofi Browser Controller is a local-only browser extension for displaying Chromium tabs, browsing
-history, and downloaded files in a Rofi menu on the user's Linux computer.
+history, and downloaded files in Rofi, and optionally managing Chromium bookmarks on the user's
+Linux computer.
 
 ## Data the extension accesses
 
@@ -13,12 +14,15 @@ The extension accesses only the data needed for its single purpose:
 - **Browsing history titles, URLs, and visit times** to search and reopen recently visited pages.
 - **Download filenames, local paths, status, and start times** to list completed downloads and let
   the user copy or open a selected file.
+- **Bookmark titles, URLs, folder paths, and node identifiers**, after the user grants optional
+  bookmark access, to add raw URLs and search, move, or delete selected Chromium bookmarks.
 
 ## How data is used
 
-This data is sent through Chromium's Native Messaging API only to the Rofi Browser Controller
-native host installed on the same computer. The native host displays the data in Rofi and performs
-the action explicitly selected by the user.
+Tab, history, and download data is sent through Chromium's Native Messaging API only to the Rofi
+Browser Controller native host installed on the same computer. Bookmark data remains inside
+Chromium and is handled directly by the extension's local Bookmark Manager page through the
+`chrome.bookmarks` API. The manager does not visit, resolve, or fetch submitted URLs.
 
 ## Data collection, sharing, and retention
 

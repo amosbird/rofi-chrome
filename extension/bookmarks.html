@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bookmark Manager</title>
+    <link rel="stylesheet" href="bookmarks.css">
+    <script src="bookmarks.js" defer></script>
+</head>
+<body>
+    <header class="app-header">
+        <div>
+            <h1>Bookmarks</h1>
+            <p>Native Chromium bookmarks. URLs are never opened or resolved while saving.</p>
+        </div>
+        <strong id="total-count"></strong>
+    </header>
+
+    <section id="permission-panel" class="permission-panel">
+        <h2>Allow access to this profile's bookmarks</h2>
+        <p>The optional permission lets this local extension read and edit Chromium bookmarks.</p>
+        <button id="enable-bookmarks" class="primary" type="button">Allow bookmark access</button>
+        <p id="permission-status" class="status" role="status"></p>
+    </section>
+
+    <main class="workspace" hidden>
+        <section id="add-section" class="capture-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Add bookmarks <kbd>Ctrl+1</kbd></h2>
+                    <p>Paste title URL, Markdown link, bare URL, or an Outline.</p>
+                </div>
+                <button id="show-format-help" type="button">Format help</button>
+            </div>
+            <textarea
+                id="url-input"
+                rows="2"
+                autofocus
+                placeholder="Paste URLs or # Bookmarks outline here"
+            ></textarea>
+            <div id="capture-results" hidden>
+                <p id="preview-summary" class="summary">Paste URLs to preview them.</p>
+                <div id="preview-list" class="preview-list"></div>
+                <div class="save-bar">
+                    <span class="default-folder-note">
+                        Saves to Chromium's default bookmark folder.
+                    </span>
+                    <button id="add-bookmarks" class="primary" type="button" disabled>
+                        Add bookmarks <kbd>Ctrl+Enter</kbd>
+                    </button>
+                </div>
+            </div>
+            <div class="capture-status">
+                <p id="add-status" class="status" role="status"></p>
+                <button id="undo-add" type="button" hidden>Undo last add</button>
+            </div>
+        </section>
+
+        <section id="library-section" class="library">
+            <aside>
+                <h2>Folders</h2>
+                <button class="folder active" data-folder-id="" type="button">All bookmarks</button>
+                <div id="folder-tree"></div>
+            </aside>
+            <div class="library-main">
+                <div class="library-toolbar">
+                    <input
+                        id="search"
+                        type="search"
+                        placeholder="Search title, URL, or folder  Ctrl+2 /"
+                    >
+                    <span id="bookmark-count"></span>
+                </div>
+                <div id="library-actions" class="context-actions" hidden>
+                    <strong id="selection-count"></strong>
+                    <button id="open-selected" type="button">Open</button>
+                    <button id="edit-selected" type="button">Edit</button>
+                    <label>Move to <select id="move-folder-select"></select></label>
+                    <button id="move-selected" type="button">Move</button>
+                    <button id="delete-selected" class="danger" type="button">Delete</button>
+                </div>
+                <p id="manage-status" class="status" role="status"></p>
+                <p id="empty-bookmarks" hidden>No bookmarks match the current view.</p>
+                <div id="bookmark-list" class="bookmark-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <dialog id="format-help-dialog">
+        <form method="dialog">
+            <h2>Accepted formats: Markdown Bookmark Outline</h2>
+            <pre>ClickHouse Docs https://clickhouse.com/docs
+[ArchWiki](https://wiki.archlinux.org/)
+https://presentations.clickhouse.com/
+
+# Bookmarks
+
+## Work
+### ClickHouse
+- [ClickHouse Docs](https://clickhouse.com/docs)
+- https://presentations.clickhouse.com/
+
+## Personal
+- [ArchWiki](https://wiki.archlinux.org/)</pre>
+            <p>Use one <code>title URL</code>, Markdown link, or bare URL per line. In an outline,
+                <code># Bookmarks</code> identifies the format and headings create nested folders.</p>
+            <div class="dialog-actions"><button class="primary" value="default">Close</button></div>
+        </form>
+    </dialog>
+
+    <dialog id="edit-dialog">
+        <form method="dialog">
+            <h2>Edit bookmark</h2>
+            <label>Title <input id="edit-title" type="text"></label>
+            <label>URL <input id="edit-url" type="url"></label>
+            <div class="dialog-actions">
+                <button value="cancel">Cancel</button>
+                <button id="save-edit" class="primary" value="default">Save</button>
+            </div>
+        </form>
+    </dialog>
+</body>
+</html>

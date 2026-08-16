@@ -1,7 +1,7 @@
 # rofi-chrome
 
-A Chromium extension and native messaging host for controlling tabs, history, and downloads with
-[Rofi](https://github.com/davatorium/rofi).
+A Chromium extension and native messaging host for controlling tabs, history, downloads, and
+bookmarks with [Rofi](https://github.com/davatorium/rofi).
 
 Chrome Web Store Item ID: `jpgfhlaplofoaempbhliigmjbpofeghk`.
 Development builds retain the historical local ID `aocepclkpgckjeikiphffdlileoaceec`.
@@ -13,13 +13,37 @@ Development builds retain the historical local ID `aocepclkpgckjeikiphffdlileoac
 - Search history from the current origin
 - Return to the previously active tab
 - List, copy, and open downloads
+- Optionally manage Chromium bookmarks from a local extension page
+- Bulk-add raw HTTP(S) URLs without opening or resolving them
+- Import a self-describing Markdown Bookmark Outline into nested Chromium folders
+- Search, move, and delete selected bookmarks
+
+## Hierarchical text import
+
+The Bookmark Manager accepts a Markdown Bookmark Outline:
+
+```markdown
+# Bookmarks
+
+## Work
+### ClickHouse
+- [ClickHouse Documentation](https://clickhouse.com/docs)
+- https://presentations.clickhouse.com/
+
+## Personal
+- [ArchWiki](https://wiki.archlinux.org/)
+```
+
+`# Bookmarks` identifies the document. Headings from level two onward create nested folders beneath
+the selected target folder. Markdown links keep their title; bare URLs use their hostname. Heading
+levels cannot skip a level. URLs are stored unchanged and are never fetched or resolved.
 
 ## Install from a release
 
 Requirements: Chromium, Python 3, and Rofi.
 
 ```bash
-version=1.2.1
+version=1.3.0
 base=https://github.com/amosbird/rofi-chrome/releases/download/v$version
 curl -fLO "$base/rofi-chrome-extension-$version.zip"
 curl -fLO "$base/rofi-chrome-host-$version.tar.gz"
@@ -69,10 +93,10 @@ Build the upload package and checksums:
 
 ```bash
 ./scripts/build-release.sh
-unzip -l dist/rofi-chrome-cws-1.2.1.zip
+unzip -l dist/rofi-chrome-cws-1.3.0.zip
 ```
 
-Upload `dist/rofi-chrome-cws-1.2.1.zip`. It deliberately omits the development `key`; after the
+Upload `dist/rofi-chrome-cws-1.3.0.zip`. It deliberately omits the development `key`; after the
 first upload, use the Item ID from the dashboard when installing the native host. Submission copy is
 in `store-listing.md`, the privacy policy is in `PRIVACY.md`, and listing images are in
 `store-assets/`.
@@ -80,5 +104,6 @@ in `store-listing.md`, the privacy policy is in `PRIVACY.md`, and listing images
 ## Security
 
 The extension can read tab URLs, browser history, and download paths because those are its core
-inputs. Data is sent only to the local native messaging host. The host invokes local commands
+inputs. Optional bookmark access is requested only from Bookmark Manager and stays inside Chromium.
+Tab, history, and download data is sent only to the local native messaging host. The host invokes
 (`rofi`, and optionally `fcp`, `xdg-open`, and `rofi-browser-blocklist.sh`) without a shell.
