@@ -11,27 +11,34 @@
     font: 15px system-ui, sans-serif;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
 body {
     margin: 0;
-    color: #e8e8e8;
-    background: #171717;
+    overflow: hidden;
+    color: #e5e7eb;
+    background: #181a1b;
 }
 
 button, input, select, textarea {
     color: inherit;
-    border: 1px solid #555;
-    border-radius: 5px;
-    background: #2d2d2d;
+    border: 1px solid #454b50;
+    border-radius: 6px;
+    background: #25282a;
     font: inherit;
 }
 
 button {
-    padding: 8px 12px;
+    padding: 7px 11px;
     cursor: pointer;
 }
 
 button:hover, button:focus-visible {
-    background: #414141;
+    border-color: #6f7f88;
+    background: #31363a;
     outline: none;
 }
 
@@ -41,123 +48,120 @@ button:disabled {
 }
 
 input, select, textarea {
-    padding: 9px;
+    padding: 9px 11px;
 }
 
 textarea {
     width: 100%;
-    min-height: 62px;
+    min-height: 58px;
     max-height: 150px;
     overflow-y: auto;
     resize: none;
+    line-height: 1.45;
 }
 
-h1, h2, p {
+h2, p {
     margin-top: 0;
 }
 
-h1 {
-    margin-bottom: 4px;
-    font-size: 28px;
-}
-
 h2 {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     font-size: 20px;
 }
 
 kbd {
-    color: #aaa;
+    margin-left: 5px;
+    color: #8e989f;
     font-size: 11px;
-}
-
-.app-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 28px 14px;
-    border-bottom: 1px solid #3a3a3a;
-}
-
-.app-header p, .panel-header p {
-    margin-bottom: 0;
-    color: #aaa;
+    font-weight: 400;
 }
 
 .permission-panel {
-    max-width: 1100px;
-    margin: 28px auto;
-    padding: 22px;
-    border: 1px solid #444;
+    max-width: 720px;
+    margin: 10vh auto;
+    padding: 24px;
+    border: 1px solid #454b50;
     border-radius: 8px;
-    background: #222;
+    background: #202325;
 }
 
 .workspace {
     display: grid;
-    max-width: 1500px;
-    margin: 16px auto 24px;
-    padding: 0 18px;
-    gap: 14px;
-}
-
-.capture-panel, .library {
-    border: 1px solid #444;
-    border-radius: 8px;
-    background: #222;
-}
-
-.capture-status {
-    display: flex;
-    align-items: center;
+    grid-template-rows: auto minmax(0, 1fr);
+    width: 100%;
+    height: 100vh;
+    padding: 14px;
     gap: 12px;
 }
 
-.capture-status .status {
-    flex: 1;
+.capture-panel, .library {
+    border: 1px solid #3d4347;
+    border-radius: 8px;
+    background: #202325;
 }
 
 .capture-panel {
-    padding: 16px 18px 12px;
+    padding: 13px 15px 10px;
 }
 
-.primary {
-    color: #171717;
-    border-color: #ffb300;
-    background: #ffb300;
-    font-weight: 600;
-}
-
-.primary:hover, .primary:focus-visible {
-    background: #ffc233;
-}
-
-.panel-header, .save-bar, .library-toolbar, .context-actions, .dialog-actions {
+.capture-heading, .folder-heading, .save-bar, .library-toolbar, .context-actions,
+.dialog-actions, .capture-status {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
 }
 
+.capture-heading {
+    margin-bottom: 9px;
+    font-weight: 600;
+}
+
+.capture-heading button {
+    padding: 5px 9px;
+    color: #aeb7bd;
+}
+
+.folder-heading {
+    margin: 2px 4px 12px;
+    color: #cbd1d5;
+}
+
+.folder-heading span {
+    color: #8e989f;
+    font-size: 12px;
+}
+
+.primary {
+    color: #f5f7f8;
+    border-color: #517485;
+    background: #426474;
+    font-weight: 600;
+}
+
+.primary:hover, .primary:focus-visible {
+    background: #4d7385;
+}
+
 .summary {
-    margin: 10px 0;
-    color: #aaa;
+    margin: 9px 0;
+    color: #9ca5ab;
 }
 
 .preview-list {
-    max-height: 330px;
+    max-height: 250px;
     overflow: auto;
-    border: 1px solid #3d3d3d;
-    border-radius: 5px;
+    border: 1px solid #373c3f;
+    border-radius: 6px;
 }
 
 .preview-row, .bookmark-row {
     display: grid;
-    grid-template-columns: 26px minmax(180px, 0.8fr) minmax(280px, 1.4fr) minmax(180px, 0.7fr);
+    grid-template-columns: 26px minmax(180px, 0.8fr) minmax(280px, 1.4fr) minmax(150px, 0.7fr);
     gap: 10px;
     align-items: center;
     padding: 9px 11px;
-    border-bottom: 1px solid #393939;
+    border-bottom: 1px solid #353a3d;
 }
 
 .preview-row:last-child, .bookmark-row:last-child {
@@ -173,39 +177,44 @@ kbd {
 }
 
 .url, .path {
-    color: #aaa;
+    color: #9ca5ab;
     overflow-wrap: anywhere;
 }
 
+.badge, .status {
+    color: #79a8b8;
+}
+
 .badge {
-    color: #ffb300;
     font-size: 12px;
 }
 
 .save-bar {
     justify-content: flex-end;
-    margin-top: 14px;
+    margin-top: 10px;
+}
+
+.capture-status .status {
+    flex: 1;
 }
 
 .status {
     min-height: 1.2em;
-    margin: 10px 0 0;
-    color: #ffb300;
+    margin: 8px 0 0;
 }
 
 .library {
     display: grid;
-    grid-template-columns: 230px minmax(0, 1fr);
-    max-width: none;
+    grid-template-columns: 220px minmax(0, 1fr);
     min-height: 0;
-    padding: 0;
     overflow: hidden;
 }
 
 aside {
-    min-height: 420px;
-    padding: 14px;
-    border-right: 1px solid #444;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 14px 12px;
+    border-right: 1px solid #3d4347;
 }
 
 .folder {
@@ -221,59 +230,75 @@ aside {
 }
 
 .folder.active {
-    color: #ffb300;
-    background: #373737;
+    color: #d8e2e6;
+    background: #35434a;
 }
 
 .library-main {
+    display: flex;
     min-width: 0;
-    padding: 16px;
+    min-height: 0;
+    flex-direction: column;
+    padding: 14px;
 }
 
 .library-toolbar input {
-    width: min(620px, 80%);
+    width: min(720px, 82%);
 }
 
 .context-actions {
     justify-content: flex-start;
-    margin-top: 10px;
-    padding: 8px;
-    border-radius: 5px;
-    background: #303030;
+    margin-top: 9px;
+    padding: 7px;
+    border-radius: 6px;
+    background: #2a2e31;
+}
+
+.context-actions.inactive {
+    color: #778087;
+    background: #24282a;
+}
+
+.context-actions.inactive label {
+    opacity: 0.55;
 }
 
 .bookmark-list {
     margin-top: 8px;
-    border: 1px solid #3d3d3d;
-    border-radius: 5px;
+    overflow-y: auto;
+    border: 1px solid #373c3f;
+    border-radius: 6px;
 }
 
 .bookmark-row:hover, .bookmark-row.selected {
-    background: #2c2c2c;
+    background: #292e31;
 }
 
-.bookmark-row a {
-    color: #e8e8e8;
-    text-decoration: none;
+.bookmark-row {
+    cursor: pointer;
+}
+
+.bookmark-title {
+    color: #e5e7eb;
 }
 
 .danger {
-    color: #ffaaaa;
+    color: #e9a3a3;
 }
 
 dialog {
     color: inherit;
-    border: 1px solid #555;
+    border: 1px solid #4b5358;
     border-radius: 8px;
-    background: #222;
+    background: #202325;
 }
 
 dialog pre {
     padding: 10px;
     overflow: auto;
-    border-radius: 5px;
-    color: #ddd;
-    background: #191919;
+    border-radius: 6px;
+    color: #d8dcdf;
+    background: #181a1b;
 }
 
 dialog::backdrop {

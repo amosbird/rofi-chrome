@@ -8,14 +8,6 @@
     <script src="bookmarks.js" defer></script>
 </head>
 <body>
-    <header class="app-header">
-        <div>
-            <h1>Bookmarks</h1>
-            <p>Native Chromium bookmarks. URLs are never opened or resolved while saving.</p>
-        </div>
-        <strong id="total-count"></strong>
-    </header>
-
     <section id="permission-panel" class="permission-panel">
         <h2>Allow access to this profile's bookmarks</h2>
         <p>The optional permission lets this local extension read and edit Chromium bookmarks.</p>
@@ -25,11 +17,8 @@
 
     <main class="workspace" hidden>
         <section id="add-section" class="capture-panel">
-            <div class="panel-header">
-                <div>
-                    <h2>Add bookmarks <kbd>Ctrl+1</kbd></h2>
-                    <p>Paste title URL, Markdown link, bare URL, or an Outline.</p>
-                </div>
+            <div class="capture-heading">
+                <span>Add bookmarks <kbd>Ctrl+1</kbd></span>
                 <button id="show-format-help" type="button">Format help</button>
             </div>
             <textarea
@@ -58,7 +47,10 @@
 
         <section id="library-section" class="library">
             <aside>
-                <h2>Folders</h2>
+                <div class="folder-heading">
+                    <strong>Folders</strong>
+                    <span id="total-count"></span>
+                </div>
                 <button class="folder active" data-folder-id="" type="button">All bookmarks</button>
                 <div id="folder-tree"></div>
             </aside>
@@ -71,13 +63,13 @@
                     >
                     <span id="bookmark-count"></span>
                 </div>
-                <div id="library-actions" class="context-actions" hidden>
+                <div id="library-actions" class="context-actions inactive">
                     <strong id="selection-count"></strong>
-                    <button id="open-selected" type="button">Open</button>
-                    <button id="edit-selected" type="button">Edit</button>
-                    <label>Move to <select id="move-folder-select"></select></label>
-                    <button id="move-selected" type="button">Move</button>
-                    <button id="delete-selected" class="danger" type="button">Delete</button>
+                    <button id="open-selected" type="button" disabled>Open</button>
+                    <button id="edit-selected" type="button" disabled>Edit</button>
+                    <label>Move to <select id="move-folder-select" disabled></select></label>
+                    <button id="move-selected" type="button" disabled>Move</button>
+                    <button id="delete-selected" class="danger" type="button" disabled>Delete</button>
                 </div>
                 <p id="manage-status" class="status" role="status"></p>
                 <p id="empty-bookmarks" hidden>No bookmarks match the current view.</p>

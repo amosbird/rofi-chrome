@@ -253,9 +253,13 @@ function visibleBookmarks() {
 
 function renderSelection() {
     const count = selectedIds.size;
-    libraryActions.hidden = count === 0;
-    selectionCount.textContent = `${count} selected`;
+    libraryActions.classList.toggle("inactive", count === 0);
+    selectionCount.textContent = count ? `${count} selected` : "No selection";
+    $("#open-selected").disabled = count === 0;
     $("#edit-selected").disabled = count !== 1;
+    moveFolderSelect.disabled = count === 0;
+    $("#move-selected").disabled = count === 0;
+    $("#delete-selected").disabled = count === 0;
     document.querySelectorAll(".bookmark-row").forEach((row) => {
         row.classList.toggle("selected", selectedIds.has(row.dataset.id));
         row.querySelector("input").checked = selectedIds.has(row.dataset.id);
@@ -272,18 +276,15 @@ function renderBookmarks() {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = selectedIds.has(bookmark.id);
+        checkbox.addEventListener("click", (event) => event.stopPropagation());
         checkbox.addEventListener("change", () => {
             if (checkbox.checked) selectedIds.add(bookmark.id);
             else selectedIds.delete(bookmark.id);
             renderSelection();
         });
-        const title = document.createElement("a");
-        title.href = bookmark.url;
+        const title = document.createElement("span");
+        title.className = "bookmark-title";
         title.textContent = bookmark.title;
-        title.addEventListener("click", async (event) => {
-            event.preventDefault();
-            await openInBrowser(bookmark.url);
-        });
         const url = document.createElement("span");
         url.className = "url";
         url.textContent = bookmark.url;
@@ -291,6 +292,15 @@ function renderBookmarks() {
         path.className = "path";
         path.textContent = bookmark.path;
         row.append(checkbox, title, url, path);
+        row.addEventListener("click", async (event) => {
+            if (event.ctrlKey) {
+                await openInBrowser(bookmark.url);
+                return;
+            }
+            if (selectedIds.has(bookmark.id)) selectedIds.delete(bookmark.id);
+            else selectedIds.add(bookmark.id);
+            renderSelection();
+        });
         bookmarkList.append(row);
     }
     bookmarkCount.textContent = `${visible.length} of ${bookmarks.length}`;

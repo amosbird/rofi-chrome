@@ -64,14 +64,24 @@ class ReleaseTest(unittest.TestCase):
             'id="edit-dialog"',
         ):
             self.assertIn(marker, page)
-        self.assertNotIn('class="tabs"', page)
-        self.assertNotIn('id="library-section" class="library" hidden', page)
+        self.assertNotIn('class="app-header"', page)
+        self.assertIn('class="workspace"', page)
+        self.assertIn("height: 100vh", (ROOT / "extension/bookmarks.css").read_text())
+        self.assertIn(
+            "grid-template-rows: auto minmax(0, 1fr)",
+            (ROOT / "extension/bookmarks.css").read_text(),
+        )
         self.assertNotIn("activeView", script)
         self.assertNotIn("setView(", script)
         self.assertIn('event.ctrlKey && event.key === "1"', script)
         self.assertIn('event.ctrlKey && event.key === "2"', script)
         self.assertIn("input.focus()", script)
         self.assertIn("searchInput.focus()", script)
+        self.assertNotIn('id="library-actions" class="context-actions" hidden', page)
+        self.assertIn("libraryActions.classList.toggle(\"inactive\", count === 0)", script)
+        self.assertIn('$("#open-selected").disabled = count === 0', script)
+        self.assertIn('$("#move-selected").disabled = count === 0', script)
+        self.assertIn('$("#delete-selected").disabled = count === 0', script)
         self.assertIn("renderPreview", script)
         self.assertIn("defaultBookmarkParent", script)
         self.assertIn("chrome.bookmarks.update", script)
@@ -142,6 +152,9 @@ class ReleaseTest(unittest.TestCase):
         self.assertIn('chrome.runtime.sendNativeMessage("io.github.amosbird.rofi.chrome",', script)
         self.assertIn('info: "openInBrowser"', script)
         self.assertNotIn("chrome.windows.create", script)
+        self.assertIn("row.addEventListener(\"click\"", script)
+        self.assertIn("if (event.ctrlKey)", script)
+        self.assertIn("selectedIds.has(bookmark.id)", script)
         self.assertIn("await openInBrowser(bookmark.url)", script)
         self.assertNotIn("await chrome.tabs.create({ url: bookmark.url })", script)
 
