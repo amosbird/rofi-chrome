@@ -19,9 +19,11 @@ The extension accesses only the data needed for its single purpose:
 
 ## How data is used
 
-Tab, history, and download data is sent through Chromium's Native Messaging API only to the Rofi
-Browser Controller native host installed on the same computer. Bookmark data remains inside
-Chromium and is handled directly by the extension's local Bookmark Manager page through the
+Tab and history data, plus the displayed download list, is sent through Chromium's Native Messaging
+API only to the Rofi Browser Controller native host installed on the same computer for local Rofi
+selection. Selected and newly completed download paths are copied with Chromium's Clipboard API,
+and selected files are opened with Chromium's Downloads API. Bookmark data remains inside Chromium
+and is handled directly by the extension's local Bookmark Manager page through the
 `chrome.bookmarks` API. The manager does not visit, resolve, or fetch submitted URLs.
 
 ## Data collection, sharing, and retention

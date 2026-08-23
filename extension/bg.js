@@ -140,12 +140,11 @@ const CMDS = {
                         "-i",
                         "-p",
                         "Search",
-                        "-kb-accept-custom",
-                        "Shift-Return",
                         "-kb-custom-1",
                         "Control-Return",
                     ],
                     opts: existingDownloads.map((e) => e.filename),
+                    downloadIds: existingDownloads.map((e) => e.id),
                 },
             });
         });
@@ -210,6 +209,12 @@ function onNativeMessage(message) {
         } else {
             goToTab(parseInt(message.result));
         }
+    } else if (message.info === "listDownloads" && message.result) {
+        if (message.result.action === "copy") {
+            copyDownloadPath(message.result.id);
+        } else if (message.result.action === "open") {
+            chrome.downloads.open(message.result.id);
+        }
     } else if (message.info === "openHistory" && message.result !== "") {
         let parts = message.result.split(" ::: ");
 
@@ -237,6 +242,22 @@ function onDisconnected() {
     const error = chrome.runtime.lastError;
     if (error) console.error("Native host disconnected: " + error.message);
     state.port = null;
+}
+
+async function copyDownloadPath(id) {
+    const [download] = await chrome.downloads.search({ id });
+    if (!download?.filename) return;
+    if (!(await chrome.offscreen.hasDocument())) {
+        await chrome.offscreen.createDocument({
+            url: "offscreen.html",
+            reasons: [chrome.offscreen.Reason.CLIPBOARD],
+            justification: "Copy downloaded file paths",
+        });
+    }
+    await chrome.runtime.sendMessage({
+        action: "copyDownloadPath",
+        text: download.filename,
+    });
 }
 
 function addChromeListeners() {
@@ -285,10 +306,7 @@ function addChromeListeners() {
                                         return;
                                     }
 
-                                    postNativeMessage({
-                                        info: "copyDownload",
-                                        param: downloadItem.filename,
-                                    });
+                                    copyDownloadPath(downloadItem.id);
                                 }
                             }
                         },

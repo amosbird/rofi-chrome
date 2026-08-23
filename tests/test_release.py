@@ -13,9 +13,9 @@ class ReleaseTest(unittest.TestCase):
         manifest = json.loads((ROOT / "extension/manifest.json").read_text())
         self.assertEqual(
             manifest["permissions"],
-            ["nativeMessaging", "tabs", "history", "downloads"],
+            ["nativeMessaging", "tabs", "history", "downloads", "offscreen", "clipboardWrite"],
         )
-        self.assertEqual(manifest["version"], "1.3.0")
+        self.assertEqual(manifest["version"], "1.4.0")
         self.assertNotIn("content_scripts", manifest)
         self.assertEqual(manifest["action"]["default_popup"], "popup.html")
         self.assertEqual(
@@ -27,6 +27,21 @@ class ReleaseTest(unittest.TestCase):
                 "128": "icons/icon128.png",
             },
         )
+
+    def test_download_actions_stay_in_the_extension(self):
+        manifest = json.loads((ROOT / "extension/manifest.json").read_text())
+        script = (ROOT / "extension/bg.js").read_text()
+        offscreen = (ROOT / "extension/offscreen.js").read_text()
+        self.assertIn("offscreen", manifest["permissions"])
+        self.assertIn("clipboardWrite", manifest["permissions"])
+        self.assertIn("chrome.offscreen.createDocument", script)
+        self.assertIn("chrome.downloads.open", script)
+        self.assertIn('action: "copyDownloadPath"', script)
+        self.assertIn('downloadIds: existingDownloads.map((e) => e.id)', script)
+        self.assertNotIn('info: "copyDownload"', script)
+        self.assertIn("return navigator.clipboard.writeText(message.text)", offscreen)
+        self.assertTrue((ROOT / "extension/offscreen.html").is_file())
+        self.assertTrue((ROOT / "extension/offscreen.js").is_file())
 
     def test_bookmark_manager_uses_optional_permission_and_chrome_api(self):
         manifest = json.loads((ROOT / "extension/manifest.json").read_text())
@@ -162,6 +177,7 @@ class ReleaseTest(unittest.TestCase):
         self.assertIn("finally", script)
         self.assertIn("selectedIds.has(bookmark.id)", script)
         self.assertIn("await openInBrowser(bookmark.url)", script)
+        self.assertIn("window.close()", script)
         self.assertNotIn("await chrome.tabs.create({ url: bookmark.url })", script)
 
     def test_add_uses_chromium_default_bookmark_folder(self):
@@ -208,6 +224,8 @@ class ReleaseTest(unittest.TestCase):
             "extension/bookmarks.html",
             "extension/bookmarks.css",
             "extension/bookmarks.js",
+            "extension/offscreen.html",
+            "extension/offscreen.js",
             "extension/icons/icon16.png",
             "extension/icons/icon32.png",
             "extension/icons/icon48.png",

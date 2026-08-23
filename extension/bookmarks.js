@@ -399,6 +399,7 @@ async function activateBookmark(event, bookmark) {
         manageStatus.textContent = "Opening bookmark…";
         try {
             await openInBrowser(bookmark.url);
+            window.close();
         } catch (error) {
             console.error("Failed to open bookmark:", error);
             manageStatus.textContent = "Failed to open bookmark in main browser.";
@@ -468,6 +469,7 @@ document
 
 $("#open-selected").addEventListener("click", async () => {
     for (const bookmark of selectedBookmarks()) await openInBrowser(bookmark.url);
+    window.close();
 });
 
 $("#edit-selected").addEventListener("click", () => {

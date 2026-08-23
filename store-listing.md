@@ -21,7 +21,9 @@ Features:
 - Search recent browsing history and open a result.
 - Search history limited to the current website.
 - Return to the previously active tab.
-- List completed downloads, copy a path, or open a selected file.
+- List completed downloads, copy a path with the browser Clipboard API, or open a selected file
+  with the browser Downloads API.
+- Automatically copy a completed download path with the browser Clipboard API.
 - Optionally grant bookmark access to bulk-add raw URLs without visiting them.
 - Search existing bookmarks and move or delete selected entries.
 - Launch browser commands from the toolbar popup or configurable extension shortcuts.
@@ -56,8 +58,19 @@ website. History is processed locally and is not retained by the extension.
 
 ### downloads
 
-Required to list completed download filenames and local paths, and to react when a download
-finishes. The selected path is passed only to the local native host.
+Required to list completed download filenames and local paths, react when a download finishes, and
+open a selected download with the browser Downloads API. The displayed list is sent to the local
+native host only for Rofi selection. Selected and newly completed paths are copied locally with the
+browser Clipboard API.
+
+### offscreen
+
+Required to provide a minimal hidden extension document for clipboard writes because Manifest V3
+service workers do not have DOM clipboard access.
+
+### clipboardWrite
+
+Required to copy a selected or newly completed download path to the local system clipboard.
 
 ### bookmarks (optional)
 
@@ -96,8 +109,8 @@ https://amosbird.github.io/rofi-chrome/privacy
 Platform: Linux with Chromium, Python 3, and Rofi.
 
 1. Open the release page:
-   https://github.com/amosbird/rofi-chrome/releases/tag/v1.3.0
-2. Download and extract `rofi-chrome-host-1.3.0.tar.gz`.
+   https://github.com/amosbird/rofi-chrome/releases/tag/v1.4.0
+2. Download and extract `rofi-chrome-host-1.4.0.tar.gz`.
 3. Run:
 
    ```bash

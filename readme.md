@@ -43,7 +43,7 @@ levels cannot skip a level. URLs are stored unchanged and are never fetched or r
 Requirements: Chromium, Python 3, and Rofi.
 
 ```bash
-version=1.3.0
+version=1.4.0
 base=https://github.com/amosbird/rofi-chrome/releases/download/v$version
 curl -fLO "$base/rofi-chrome-extension-$version.zip"
 curl -fLO "$base/rofi-chrome-host-$version.tar.gz"
@@ -93,10 +93,10 @@ Build the upload package and checksums:
 
 ```bash
 ./scripts/build-release.sh
-unzip -l dist/rofi-chrome-cws-1.3.0.zip
+unzip -l dist/rofi-chrome-cws-1.4.0.zip
 ```
 
-Upload `dist/rofi-chrome-cws-1.3.0.zip`. It deliberately omits the development `key`; after the
+Upload `dist/rofi-chrome-cws-1.4.0.zip`. It deliberately omits the development `key`; after the
 first upload, use the Item ID from the dashboard when installing the native host. Submission copy is
 in `store-listing.md`, the privacy policy is in `PRIVACY.md`, and listing images are in
 `store-assets/`.
@@ -105,5 +105,7 @@ in `store-listing.md`, the privacy policy is in `PRIVACY.md`, and listing images
 
 The extension can read tab URLs, browser history, and download paths because those are its core
 inputs. Optional bookmark access is requested only from Bookmark Manager and stays inside Chromium.
-Tab, history, and download data is sent only to the local native messaging host. The host invokes
-(`rofi`, and optionally `fcp`, `xdg-open`, and `rofi-browser-blocklist.sh`) without a shell.
+Tab and history data, plus the displayed download list, is sent only to the local native messaging
+host for Rofi selection. Download paths are copied with the browser Clipboard API, and files are
+opened with the browser Downloads API. The native host invokes only `rofi` for selection; opening a
+bookmark delegates its HTTP(S) URL to the configured main-browser wrapper.

@@ -1,14 +1,16 @@
 {
     "name": "Rofi Browser Controller",
     "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuHwUuBKUt9Ac7Sge8cHpFEkiX3wn/yTiVY9lPzRuK6D/9BwqMSydTXsaHTHjl/3FV7m1fmL338itD2ilR3e5m/8XnYowL6QoBVJAeHIWylmEE3/XKVjn1ETd0QnXj/3euG2Z+oWsVcWhhxfflOPErm+tO+LrFINwkRWire8Wdz4sCugYlPUL95dCRlRYwAcyc4i+9y1AB7meCDHDYeMc1arm9Aad0ePqGCulJlFH2ocq5LRkrXacmrGVohAhslKo3TBtvXaWZRlHDce6VhWL2C/G81EHNDOLlNnhPTQPjf1p5pBVxl10RVAJWvOCxKY74mLIM5ZG5Qb4b0C9lpVzyQIDAQAB",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "Control Chromium tabs, history, downloads, and bookmarks through Rofi.",
     "manifest_version": 3,
     "permissions": [
         "nativeMessaging",
         "tabs",
         "history",
-        "downloads"
+        "downloads",
+        "offscreen",
+        "clipboardWrite"
     ],
     "optional_permissions": [
         "bookmarks"

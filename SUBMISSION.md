@@ -2,11 +2,11 @@
 
 ## Upload package
 
-Upload this file from the v1.2.1 GitHub release:
+Upload this file from the v1.4.0 GitHub release:
 
-`rofi-chrome-cws-1.2.1.zip`
+`rofi-chrome-cws-1.4.0.zip`
 
-https://github.com/amosbird/rofi-chrome/releases/download/v1.2.1/rofi-chrome-cws-1.2.1.zip
+https://github.com/amosbird/rofi-chrome/releases/download/v1.4.0/rofi-chrome-cws-1.4.0.zip
 
 ## Store listing
 
@@ -27,7 +27,7 @@ Copy the single-purpose statement and each permission justification from `store-
 
 - Remote code: **No**
 - Privacy policy: https://amosbird.github.io/rofi-chrome/privacy
-- Data disclosures: web history, tab/URL metadata, and download metadata
+- Data disclosures: web history, tab/URL metadata, download metadata, and bookmark metadata
 - Complete every Limited Use certification checkbox truthfully as described in `store-listing.md`
 
 ## Distribution

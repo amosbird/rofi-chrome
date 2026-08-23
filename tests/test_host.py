@@ -31,50 +31,39 @@ class HostTest(unittest.TestCase):
         payload = stream.getvalue()
         self.assertEqual(struct.unpack("<I", payload[:4])[0], len(payload[4:]))
 
-    def test_blocklist_keeps_tab_id_alignment(self):
+    def test_switch_tab_keeps_tab_id_alignment_without_external_filter(self):
         param = {
-            "opts": ["Blocked ::: https://blocked", "Visible ::: https://visible"],
+            "opts": ["First ::: https://first", "Second ::: https://second"],
             "tabIds": [10, 20],
         }
-        with (
-            mock.patch.object(HOST, "blocklist_patterns", return_value=[]),
-            mock.patch.object(HOST, "rofi_select", return_value=(0, param["opts"][1])),
-        ):
+        with mock.patch.object(HOST, "rofi_select", return_value=(0, param["opts"][1])):
             self.assertEqual(HOST.switch_tab(param), 20)
 
-        import re
+    def test_download_selection_returns_browser_action(self):
+        param = {"opts": ["/tmp/first", "/tmp/second"], "downloadIds": [10, 20]}
+        with mock.patch.object(HOST, "rofi_select", return_value=(0, param["opts"][1])):
+            self.assertEqual(HOST.list_downloads(param), {"action": "copy", "id": 20})
+        with mock.patch.object(HOST, "rofi_select", return_value=(10, param["opts"][0])):
+            self.assertEqual(HOST.list_downloads(param), {"action": "open", "id": 10})
 
-        with (
-            mock.patch.object(HOST, "blocklist_patterns", return_value=[re.compile("blocked")]),
-            mock.patch.object(HOST, "rofi_select", return_value=(0, param["opts"][1])),
-        ):
-            self.assertEqual(HOST.switch_tab(param), 20)
+    def test_host_has_no_personal_filter_or_download_helper_dependencies(self):
+        source = PATH.read_text()
+        self.assertNotIn("rofi-browser-blocklist", source)
+        self.assertNotIn('"copyDownload"', source)
+        self.assertNotIn('["fcp"', source)
 
-    def test_open_bookmark_hides_scratchpad_and_launches_main_browser(self):
-        with (
-            mock.patch.object(HOST.socket, "socket") as socket_factory,
-            mock.patch.object(HOST.subprocess, "Popen") as popen,
-        ):
+    def test_open_bookmark_delegates_to_desktop_browser(self):
+        with mock.patch.object(HOST.subprocess, "Popen") as popen:
             self.assertEqual(HOST.open_in_browser({"url": "https://example.com/path"}), "")
-        socket_factory.return_value.__enter__.return_value.connect.assert_called_once_with(
-            str(pathlib.Path.home() / ".cache/qtile/qtilesocket.:0")
-        )
-        socket_factory.return_value.__enter__.return_value.sendall.assert_called_once_with(
-            b'[[["group","scratchpad"]],"dropdown_toggle",["bookmarks"],{},true]'
-        )
         popen.assert_called_once_with(
-            ["/home/amos/scripts/chromium", "https://example.com/path"],
+            ["xdg-open", "https://example.com/path"],
             stdout=HOST.subprocess.DEVNULL,
             stderr=HOST.subprocess.DEVNULL,
         )
 
     def test_open_bookmark_rejects_non_http_urls(self):
-        with (
-            mock.patch.object(HOST.socket, "socket") as socket_factory,
-            mock.patch.object(HOST.subprocess, "Popen") as popen,
-        ):
+        with mock.patch.object(HOST.subprocess, "Popen") as popen:
             self.assertEqual(HOST.open_in_browser({"url": "file:///tmp/private"}), "")
-        socket_factory.assert_not_called()
         popen.assert_not_called()
 
     def test_history_is_handled_by_native_host(self):
