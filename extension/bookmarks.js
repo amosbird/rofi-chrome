@@ -414,10 +414,10 @@ async function activateBookmark(event, bookmark) {
 }
 
 async function openInBrowser(url) {
-    await chrome.runtime.sendNativeMessage("io.github.amosbird.rofi.chrome", {
-        info: "openInBrowser",
-        param: { url },
-    });
+    const windows = await chrome.windows.getAll({ windowTypes: ["normal"] });
+    const target = windows.find((browserWindow) => browserWindow.id !== chrome.windows.WINDOW_ID_CURRENT);
+    await chrome.tabs.create({ windowId: target?.id, url });
+    if (target) await chrome.windows.update(target.id, { focused: true });
 }
 
 function selectedBookmarks() {

@@ -164,8 +164,8 @@ class ReleaseTest(unittest.TestCase):
     def test_bookmark_manager_opens_urls_in_a_normal_browser_window(self):
         script = (ROOT / "extension/bookmarks.js").read_text()
         self.assertIn("async function openInBrowser", script)
-        self.assertIn('chrome.runtime.sendNativeMessage("io.github.amosbird.rofi.chrome",', script)
-        self.assertIn('info: "openInBrowser"', script)
+        self.assertNotIn('chrome.runtime.sendNativeMessage("io.github.amosbird.rofi.chrome",', script)
+        self.assertNotIn('info: "openInBrowser"', script)
         self.assertNotIn("chrome.windows.create", script)
         self.assertIn("async function activateBookmark", script)
         self.assertIn("if (event.ctrlKey)", script)
@@ -177,6 +177,8 @@ class ReleaseTest(unittest.TestCase):
         self.assertIn("finally", script)
         self.assertIn("selectedIds.has(bookmark.id)", script)
         self.assertIn("await openInBrowser(bookmark.url)", script)
+        self.assertIn('chrome.windows.getAll({ windowTypes: ["normal"] })', script)
+        self.assertIn("await chrome.tabs.create({ windowId: target?.id, url })", script)
         self.assertIn("window.close()", script)
         self.assertNotIn("await chrome.tabs.create({ url: bookmark.url })", script)
 
