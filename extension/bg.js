@@ -260,6 +260,29 @@ async function copyDownloadPath(id) {
     });
 }
 
+function scrollPage(command) {
+    chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
+        if (chrome.runtime.lastError || !tabs[0]?.id) return;
+        try {
+            await chrome.scripting.executeScript({
+                target: { tabId: tabs[0].id, allFrames: true },
+                func: (top) => {
+                    const target = document.scrollingElement;
+                    if (target) {
+                        target.scrollTo({
+                            top: top ? 0 : target.scrollHeight,
+                            behavior: "instant",
+                        });
+                    }
+                },
+                args: [command === "scrollToTop"],
+            });
+        } catch (error) {
+            console.error("Failed to scroll page:", error);
+        }
+    });
+}
+
 function addChromeListeners() {
     const listeners = {
         runtime: {
@@ -275,7 +298,9 @@ function addChromeListeners() {
         },
         commands: {
             onCommand: function (command) {
-                if (command in CMDS) {
+                if (command === "scrollToTop" || command === "scrollToBottom") {
+                    scrollPage(command);
+                } else if (command in CMDS) {
                     CMDS[command]();
                 } else {
                     console.log("unknown command: " + command);

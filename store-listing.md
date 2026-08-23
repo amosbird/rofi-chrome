@@ -26,6 +26,8 @@ Features:
 - Automatically copy a completed download path with the browser Clipboard API.
 - Optionally grant bookmark access to bulk-add raw URLs without visiting them.
 - Search existing bookmarks and move or delete selected entries.
+- Scroll the active page to the beginning or end with shortcuts that work even when an input is
+  focused.
 - Launch browser commands from the toolbar popup or configurable extension shortcuts.
 
 The extension requires the companion native messaging host and Rofi. All browser information stays
@@ -72,6 +74,12 @@ service workers do not have DOM clipboard access.
 
 Required to copy a selected or newly completed download path to the local system clipboard.
 
+### scripting and activeTab
+
+Required to run the user-invoked scroll-to-beginning and scroll-to-end commands in the active tab.
+The script is injected only after the user presses the configured shortcut, scrolls the page, and
+does not read or retain page content.
+
 ### bookmarks (optional)
 
 Requested only after the user opens Bookmark Manager and clicks **Enable bookmark access**. It is
@@ -89,7 +97,8 @@ submitted package.
 Disclose the following data types in the Privacy practices tab:
 
 - Web history: titles, URLs, and visit times.
-- Website content: tab titles and URLs (metadata only; page contents are not read).
+- Website content: tab titles and URLs (metadata only). The user-invoked scroll commands modify the
+  active page's scroll position without reading or retaining page content.
 - User activity: open-tab and download metadata used for the requested local menu.
 - Personal communications or user-provided content: bookmark titles, URLs, and folder paths handled
   locally after optional permission is granted.

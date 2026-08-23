@@ -13,7 +13,16 @@ class ReleaseTest(unittest.TestCase):
         manifest = json.loads((ROOT / "extension/manifest.json").read_text())
         self.assertEqual(
             manifest["permissions"],
-            ["nativeMessaging", "tabs", "history", "downloads", "offscreen", "clipboardWrite"],
+            [
+                "nativeMessaging",
+                "tabs",
+                "history",
+                "downloads",
+                "offscreen",
+                "clipboardWrite",
+                "scripting",
+                "activeTab",
+            ],
         )
         self.assertEqual(manifest["version"], "1.4.0")
         self.assertNotIn("content_scripts", manifest)
@@ -27,6 +36,26 @@ class ReleaseTest(unittest.TestCase):
                 "128": "icons/icon128.png",
             },
         )
+
+    def test_scroll_commands_ignore_focused_inputs(self):
+        manifest = json.loads((ROOT / "extension/manifest.json").read_text())
+        script = (ROOT / "extension/bg.js").read_text()
+        self.assertEqual(
+            manifest["commands"]["scrollToTop"]["suggested_key"]["default"],
+            "Alt+Shift+Home",
+        )
+        self.assertEqual(
+            manifest["commands"]["scrollToBottom"]["suggested_key"]["default"],
+            "Alt+Shift+End",
+        )
+        self.assertIn("scripting", manifest["permissions"])
+        self.assertIn("activeTab", manifest["permissions"])
+        self.assertIn("chrome.scripting.executeScript", script)
+        self.assertIn("allFrames: true", script)
+        self.assertIn('command === "scrollToTop"', script)
+        self.assertIn("document.scrollingElement", script)
+        self.assertIn("target.scrollTo({", script)
+        self.assertIn('behavior: "instant"', script)
 
     def test_download_actions_stay_in_the_extension(self):
         manifest = json.loads((ROOT / "extension/manifest.json").read_text())

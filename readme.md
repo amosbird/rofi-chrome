@@ -107,5 +107,7 @@ The extension can read tab URLs, browser history, and download paths because tho
 inputs. Optional bookmark access is requested only from Bookmark Manager and stays inside Chromium.
 Tab and history data, plus the displayed download list, is sent only to the local native messaging
 host for Rofi selection. Download paths are copied with the browser Clipboard API, and files are
-opened with the browser Downloads API. The native host invokes only `rofi` for selection; opening a
-bookmark delegates its HTTP(S) URL to the configured main-browser wrapper.
+opened with the browser Downloads API. The extension also provides `Alt+Shift+Home` and
+`Alt+Shift+End` commands that scroll the active page regardless of input focus; shortcuts can be
+changed at `chrome://extensions/shortcuts`. The native host invokes `rofi` for selection, while
+Bookmark Manager opens selected HTTP(S) URLs directly with the Tabs API.

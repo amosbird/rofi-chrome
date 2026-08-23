@@ -10,7 +10,9 @@
         "history",
         "downloads",
         "offscreen",
-        "clipboardWrite"
+        "clipboardWrite",
+        "scripting",
+        "activeTab"
     ],
     "optional_permissions": [
         "bookmarks"
@@ -47,6 +49,18 @@
         },
         "goLastTab": {
             "description": "Return to the previously active tab"
+        },
+        "scrollToTop": {
+            "suggested_key": {
+                "default": "Alt+Shift+Home"
+            },
+            "description": "Scroll the current page to the beginning"
+        },
+        "scrollToBottom": {
+            "suggested_key": {
+                "default": "Alt+Shift+End"
+            },
+            "description": "Scroll the current page to the end"
         }
     }
 }
