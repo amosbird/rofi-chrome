@@ -32,6 +32,7 @@ let currentFolderId = "";
 let editingId = "";
 let undoCreatedIds = [];
 let reloading = false;
+let openingBookmark = false;
 
 function parseBookmarkOutline(text) {
     const items = [];
@@ -276,7 +277,13 @@ function renderBookmarks() {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = selectedIds.has(bookmark.id);
-        checkbox.addEventListener("click", (event) => event.stopPropagation());
+        checkbox.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            if (event.ctrlKey) {
+                event.preventDefault();
+                await activateBookmark(event, bookmark);
+            }
+        });
         checkbox.addEventListener("change", () => {
             if (checkbox.checked) selectedIds.add(bookmark.id);
             else selectedIds.delete(bookmark.id);
@@ -293,13 +300,7 @@ function renderBookmarks() {
         path.textContent = bookmark.path;
         row.append(checkbox, title, url, path);
         row.addEventListener("click", async (event) => {
-            if (event.ctrlKey) {
-                await openInBrowser(bookmark.url);
-                return;
-            }
-            if (selectedIds.has(bookmark.id)) selectedIds.delete(bookmark.id);
-            else selectedIds.add(bookmark.id);
-            renderSelection();
+            await activateBookmark(event, bookmark);
         });
         bookmarkList.append(row);
     }
@@ -389,6 +390,26 @@ async function addBookmarks() {
     undoButton.hidden = false;
     input.value = "";
     await reload();
+}
+
+async function activateBookmark(event, bookmark) {
+    if (event.ctrlKey) {
+        if (openingBookmark) return;
+        openingBookmark = true;
+        manageStatus.textContent = "Opening bookmark…";
+        try {
+            await openInBrowser(bookmark.url);
+        } catch (error) {
+            console.error("Failed to open bookmark:", error);
+            manageStatus.textContent = "Failed to open bookmark in main browser.";
+        } finally {
+            openingBookmark = false;
+        }
+        return;
+    }
+    if (selectedIds.has(bookmark.id)) selectedIds.delete(bookmark.id);
+    else selectedIds.add(bookmark.id);
+    renderSelection();
 }
 
 async function openInBrowser(url) {
